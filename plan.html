@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plan a programme | Dementia Support Choices</title>
+  <meta name="description" content="Build a dementia support programme from seven features and see predicted take-up, the share who would keep it, and which single change would raise take-up most.">
+  <meta name="theme-color" content="#3b2550">
+  <meta property="og:title" content="Plan a programme | Dementia Support Choices">
+  <meta property="og:description" content="Build a dementia support programme from seven features and see predicted take-up, the share who would keep it, and which single change would raise take-up most.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to main content</a>
+  <div class="helpbar">
+    <div class="wrap">
+      <span>Need to talk to someone now? National Dementia Helpline <a href="tel:1800100500">1800 100 500</a>, free call</span>
+      <div class="textsize" role="group" aria-label="Text size">
+        <span>Text size</span>
+        <button type="button" data-size="standard" aria-pressed="true" aria-label="Standard text size">A</button>
+        <button type="button" data-size="large" aria-pressed="false" aria-label="Larger text">A</button>
+        <button type="button" data-size="largest" aria-pressed="false" aria-label="Largest text">A</button>
+      </div>
+    </div>
+  </div>
+  <header class="masthead">
+    <div class="wrap">
+      <a class="brand" href="index.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+  <g transform="translate(32 32)">
+    <g fill="#2f6fbf">
+      <circle cx="0" cy="-15" r="11"/>
+      <circle cx="14.27" cy="-4.64" r="11"/>
+      <circle cx="8.82" cy="12.14" r="11"/>
+      <circle cx="-8.82" cy="12.14" r="11"/>
+      <circle cx="-14.27" cy="-4.64" r="11"/>
+    </g>
+    <g stroke="#ffffff" stroke-width="1.6" fill="none" opacity="0.85">
+      <path d="M0 -6 L0 -21"/><path d="M5.7 -1.9 L20 -6.5"/><path d="M3.5 4.9 L12.3 17"/><path d="M-3.5 4.9 L-12.3 17"/><path d="M-5.7 -1.9 L-20 -6.5"/>
+    </g>
+    <circle r="6.5" fill="#f2c94c" stroke="#3b2550" stroke-width="1.5"/>
+  </g>
+</svg>
+
+        <span><span class="brand-name">Dementia Support Choices</span>
+        <span class="brand-sub">What Australians value in dementia support programmes</span></span>
+      </a>
+    </div>
+  </header>
+  <nav class="mainnav" aria-label="Main">
+    <div class="wrap">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="families.html">For families and carers</a></li>
+        <li><a href="plan.html" aria-current="page">Plan a programme</a></li>
+        <li><a href="fees.html">Fees and access</a></li>
+        <li><a href="research.html">The research</a></li>
+      </ul>
+    </div>
+  </nav>
+  <main id="content" tabindex="-1">
+    <noscript><div class="wrap"><p class="noscript">The calculators on this site need JavaScript. The written information can be read without it.</p></div></noscript>
+    <div class="pagehead">
+      <div class="wrap">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a> / <span aria-current="page">Plan a programme</span></nav>
+<span class="audience">For service providers and programme designers</span>
+<h1>Plan a programme</h1>
+        <p class="lead">Choose the features of a programme. The results show how many people in our study population would be expected to choose it rather than no programme, and which single change would raise take-up the most.</p>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="tool">
+        <form class="panel controls" id="builder" aria-labelledby="builder-title">
+          <h2 id="builder-title">Programme features</h2>
+          <div class="field">
+            <label for="template">Start from an example</label>
+            <select id="template"></select>
+          </div>
+          <div id="feature-fields"></div>
+          <div class="field">
+            <label for="price">Cost per session: <span class="pricevalue" id="price-out"></span></label>
+            <input type="range" id="price" min="0" max="50" step="1" value="0" aria-describedby="price-hint">
+            <span class="hint" id="price-hint">The study tested free, A$5, A$20 and A$50.</span>
+          </div>
+          <p class="hint">Some combinations were not shown in the study, for example group programmes held in your own home. Those options are greyed out.</p>
+          <div class="btnrow">
+            <button type="button" class="btn secondary" id="add-compare">Add to comparison</button>
+            <button type="button" class="btn secondary" id="print">Print or save as PDF</button>
+          </div>
+        </form>
+
+        <div id="results" aria-live="polite">
+          <p class="print-only" id="print-design"></p>
+          <div class="readout">
+            <div>
+              <div class="readout-number" id="uptake-number">&nbsp;</div>
+              <div class="readout-label" id="uptake-label"></div>
+              <p class="range" id="uptake-range"></p>
+            </div>
+            <div>
+              <div id="uptake-array"></div>
+              <p class="icon-key"><span class="yes">would take it up</span><span class="no">would choose no programme</span></p>
+            </div>
+          </div>
+
+          <dl class="stats" id="stats"></dl>
+
+          <h2>Who it reaches</h2>
+          <div class="prose" id="reach"></div>
+
+          <h2>Changes that would raise take-up most</h2>
+          <p class="prose">Each row changes one feature and keeps everything else the same. Only changes allowed by the study design are shown.</p>
+          <ul class="changes" id="changes"></ul>
+
+          <h2 id="compare-title">Compare programmes</h2>
+          <div id="compare"><p class="muted">Use "Add to comparison" to compare up to three programmes side by side.</p></div>
+
+          <h2>How these numbers are calculated</h2>
+          <details>
+            <summary>Take-up</summary>
+            <p>Take-up is the predicted share of people who would choose this programme rather than no programme if it were offered on its own. The main figure comes from a mixed logit model, which allows people to differ in how much they value each feature and in how willing they are to use any programme at all. The range is a 95% interval that reflects uncertainty in the estimates. A simpler model that treats everyone as having the same preferences is shown for comparison.</p>
+          </details>
+          <details>
+            <summary>Keeping the programme once chosen</summary>
+            <p>After choosing between two programmes, people in the study said whether they would keep their choice if they could choose neither. A separate model of that second answer gives the share who would keep this programme once they had picked it.</p>
+          </details>
+          <details>
+            <summary>Lived experience</summary>
+            <p>People in daily or weekly contact with someone living with dementia valued carer inclusion about three times as much as people without lived experience. The comparison uses a model that lets the value of carer inclusion depend on caring responsibilities, a close family member with dementia, and frequency of contact.</p>
+          </details>
+          <details>
+            <summary>Limits of these predictions</summary>
+            <p>These are predictions of stated choices from 264 Australian adults recruited through an online panel. They are not forecasts of attendance at a particular service, and they do not include provider costs, waiting lists or local availability. Costs outside A$0 to A$50 per session were not tested and cannot be selected.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div class="acknowledgement">
+    <div class="wrap">
+      <p>We acknowledge the Traditional Custodians of the lands on which this research was carried out, and pay our respects to Elders past and present.</p>
+    </div>
+  </div>
+  <footer class="site">
+    <div class="wrap">
+      <div>
+        <h2>About this website</h2>
+        <p>Dementia Support Choices presents the results of a discrete choice experiment with 264 Australian adults, carried out by researchers at the University of Newcastle. It gives information from research. It is not medical advice and does not replace advice from health professionals, aged care assessors or service providers.</p>
+      </div>
+      <div>
+        <h2>Pages</h2>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="families.html">For families and carers</a></li>
+          <li><a href="plan.html">Plan a programme</a></li>
+          <li><a href="fees.html">Fees and access</a></li>
+          <li><a href="research.html">The research</a></li>
+          <li><a href="accessibility.html">Accessibility</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Contact</h2>
+        <p>Dr Mesfin Genie<br>Newcastle Business School<br>The University of Newcastle<br><a href="mailto:mesfin.genie@newcastle.edu.au">mesfin.genie@newcastle.edu.au</a></p>
+      </div>
+      <p class="legal">Funded by the National Health and Medical Research Council (G1401207). Approved by the University of Newcastle Human Research Ethics Committee (H-2023-0412). Text and results are available under the Creative Commons Attribution 4.0 licence; code under the MIT licence. &copy; <span data-year>2026</span> The authors.</p>
+    </div>
+  </footer>
+  <script type="module" src="assets/js/plan.js"></script>
+</body>
+</html>

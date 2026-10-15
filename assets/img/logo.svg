@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Forget-me-not flower">
+  <g transform="translate(32 32)">
+    <g fill="#2f6fbf">
+      <circle cx="0" cy="-15" r="11"/>
+      <circle cx="14.27" cy="-4.64" r="11"/>
+      <circle cx="8.82" cy="12.14" r="11"/>
+      <circle cx="-8.82" cy="12.14" r="11"/>
+      <circle cx="-14.27" cy="-4.64" r="11"/>
+    </g>
+    <g stroke="#ffffff" stroke-width="1.6" fill="none" opacity="0.85">
+      <path d="M0 -6 L0 -21"/><path d="M5.7 -1.9 L20 -6.5"/><path d="M3.5 4.9 L12.3 17"/><path d="M-3.5 4.9 L-12.3 17"/><path d="M-5.7 -1.9 L-20 -6.5"/>
+    </g>
+    <circle r="6.5" fill="#f2c94c" stroke="#3b2550" stroke-width="1.5"/>
+  </g>
+</svg>

@@ -1,0 +1,12 @@
+{
+  "name": "dementia-support-choices",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Decision support website built from a discrete choice experiment on dementia support programmes in Australia",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/validate.mjs",
+    "serve": "python3 -m http.server 8000"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this website, its code or its model estimates, please cite it as below."
+title: "Dementia Support Choices: what Australians value in dementia support programmes"
+type: software
+version: 1.0.0
+date-released: 2026-10-15
+license: MIT
+authors:
+  - family-names: Genie
+    given-names: Mesfin G.
+    affiliation: "Newcastle Business School, The University of Newcastle"
+    email: mesfin.genie@newcastle.edu.au
+  - family-names: Mansfield
+    given-names: Elise
+    affiliation: "School of Medicine and Public Health, The University of Newcastle"
+  - family-names: Paolucci
+    given-names: Francesco
+    affiliation: "Newcastle Business School, The University of Newcastle"
+keywords:
+  - dementia
+  - discrete choice experiment
+  - decision support
+  - health economics
+  - service design
+references:
+  - type: report
+    title: "Public preferences for dementia support programmes and implications for service design in Australia: evidence from a dual-response discrete choice experiment"
+    authors:
+      - family-names: Genie
+        given-names: Mesfin G.
+      - family-names: Mansfield
+        given-names: Elise
+      - family-names: Paolucci
+        given-names: Francesco
+    year: 2026
+    institution:
+      name: "The University of Newcastle"

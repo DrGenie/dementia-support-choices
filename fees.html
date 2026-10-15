@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fees and access | Dementia Support Choices</title>
+  <meta name="description" content="Test how a fee changes take-up of a dementia support programme, where people go when fees rise, the effect of travel distance, and the cost of reaching more people.">
+  <meta name="theme-color" content="#3b2550">
+  <meta property="og:title" content="Fees and access | Dementia Support Choices">
+  <meta property="og:description" content="Test how a fee changes take-up of a dementia support programme, where people go when fees rise, the effect of travel distance, and the cost of reaching more people.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to main content</a>
+  <div class="helpbar">
+    <div class="wrap">
+      <span>Need to talk to someone now? National Dementia Helpline <a href="tel:1800100500">1800 100 500</a>, free call</span>
+      <div class="textsize" role="group" aria-label="Text size">
+        <span>Text size</span>
+        <button type="button" data-size="standard" aria-pressed="true" aria-label="Standard text size">A</button>
+        <button type="button" data-size="large" aria-pressed="false" aria-label="Larger text">A</button>
+        <button type="button" data-size="largest" aria-pressed="false" aria-label="Largest text">A</button>
+      </div>
+    </div>
+  </div>
+  <header class="masthead">
+    <div class="wrap">
+      <a class="brand" href="index.html">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+  <g transform="translate(32 32)">
+    <g fill="#2f6fbf">
+      <circle cx="0" cy="-15" r="11"/>
+      <circle cx="14.27" cy="-4.64" r="11"/>
+      <circle cx="8.82" cy="12.14" r="11"/>
+      <circle cx="-8.82" cy="12.14" r="11"/>
+      <circle cx="-14.27" cy="-4.64" r="11"/>
+    </g>
+    <g stroke="#ffffff" stroke-width="1.6" fill="none" opacity="0.85">
+      <path d="M0 -6 L0 -21"/><path d="M5.7 -1.9 L20 -6.5"/><path d="M3.5 4.9 L12.3 17"/><path d="M-3.5 4.9 L-12.3 17"/><path d="M-5.7 -1.9 L-20 -6.5"/>
+    </g>
+    <circle r="6.5" fill="#f2c94c" stroke="#3b2550" stroke-width="1.5"/>
+  </g>
+</svg>
+
+        <span><span class="brand-name">Dementia Support Choices</span>
+        <span class="brand-sub">What Australians value in dementia support programmes</span></span>
+      </a>
+    </div>
+  </header>
+  <nav class="mainnav" aria-label="Main">
+    <div class="wrap">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="families.html">For families and carers</a></li>
+        <li><a href="plan.html">Plan a programme</a></li>
+        <li><a href="fees.html" aria-current="page">Fees and access</a></li>
+        <li><a href="research.html">The research</a></li>
+      </ul>
+    </div>
+  </nav>
+  <main id="content" tabindex="-1">
+    <noscript><div class="wrap"><p class="noscript">The calculators on this site need JavaScript. The written information can be read without it.</p></div></noscript>
+    <div class="pagehead">
+      <div class="wrap">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a> / <span aria-current="page">Fees, access and coverage</span></nav>
+<span class="audience">For policy makers and funders</span>
+<h1>Fees, access and coverage</h1>
+        <p class="lead">Use the study results to see how fees and travel affect take-up of dementia support programmes, and who a programme is likely to miss.</p>
+      </div>
+    </div>
+    <div class="wrap">
+      <nav class="toc" aria-label="On this page">
+        <h2>On this page</h2>
+        <ol>
+          <li><a href="#fee">How a fee changes take-up</a></li>
+          <li><a href="#switching">Where people go when a fee rises</a></li>
+          <li><a href="#travel">Travel distance and delivery mode</a></li>
+          <li><a href="#reach">Who a programme will not reach</a></li>
+          <li><a href="#cost">Cost of reaching more people</a></li>
+        </ol>
+      </nav>
+
+      <section id="fee">
+        <h2>How a fee changes take-up</h2>
+        <div class="tool">
+          <div class="panel controls">
+            <div class="field">
+              <label for="fee-programme">Programme</label>
+              <select id="fee-programme"></select>
+              <span class="hint" id="fee-programme-desc"></span>
+            </div>
+            <div class="field">
+              <label for="fee-input">Fee per session: <span class="pricevalue" id="fee-out"></span></label>
+              <input type="range" id="fee-input" min="0" max="50" step="1" value="20">
+            </div>
+          </div>
+          <div aria-live="polite">
+            <dl class="stats" id="fee-stats"></dl>
+            <div id="fee-chart"></div>
+            <p class="small muted">Lines show predicted take-up against no programme as the fee changes; shaded areas are 95% intervals. Move the pointer over the chart to read values.</p>
+            <div class="prose" id="fee-text"></div>
+            <h3>Sensitivity to price</h3>
+            <div id="elasticity-chart"></div>
+            <p class="small muted">Price elasticity is the percentage change in take-up for a 1% increase in the fee. Values between 0 and -1 mean take-up falls by proportionally less than the fee rises.</p>
+          </div>
+        </div>
+        <details>
+          <summary>Why there are three lines</summary>
+          <p>The multinomial logit with a straight-line cost treats every dollar as equally off-putting. The piecewise model lets the first dollars count for more than later ones, which the data supported: moving from free to A$5 per session reduced appeal about as much as moving from A$20 to A$50. The mixed logit allows people to differ, including in their willingness to use any programme at all.</p>
+        </details>
+      </section>
+
+      <section id="switching">
+        <h2>Where people go when a fee rises</h2>
+        <div class="prose">
+          <p>When two programmes are available, a fee on one of them can move people to the other programme or out of support altogether. Choose a second programme and its fee. The fee for the first programme is set above.</p>
+        </div>
+        <div class="tool">
+          <div class="panel controls">
+            <div class="field">
+              <label for="alt-programme">Second programme</label>
+              <select id="alt-programme"></select>
+            </div>
+            <div class="field">
+              <label for="alt-fee">Its fee per session: <span class="pricevalue" id="alt-fee-out"></span></label>
+              <input type="range" id="alt-fee" min="0" max="50" step="1" value="20">
+            </div>
+          </div>
+          <div aria-live="polite">
+            <div id="share-chart"></div>
+            <div class="prose" id="switch-text"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="travel">
+        <h2>Travel distance and delivery mode</h2>
+        <div class="prose">
+          <p>Predicted take-up of the programme chosen above when only travel and delivery mode change. Online programmes were always delivered at home in the study, and group programmes were not delivered at home in person.</p>
+        </div>
+        <div class="table-scroll" id="travel-table"></div>
+        <div class="prose" id="travel-text"></div>
+      </section>
+
+      <section id="reach">
+        <h2>Who a programme will not reach</h2>
+        <div class="prose" id="reach-text"></div>
+        <div class="table-scroll" id="class-table"></div>
+      </section>
+
+      <section id="cost">
+        <h2>Cost of reaching more people</h2>
+        <div class="prose">
+          <p>Compare a current programme with an alternative for a population of people offered support. Enter your own provider cost per session; the study does not include provider costs. Fees paid by participants are subtracted from the provider cost.</p>
+        </div>
+        <form class="panel" id="cost-form" style="max-width:56rem">
+          <div class="twocol">
+            <div>
+              <div class="field"><label for="cost-current">Current programme</label><select id="cost-current"></select></div>
+              <div class="field"><label for="cost-alt">Alternative programme</label><select id="cost-alt"></select></div>
+            </div>
+            <div>
+              <div class="field"><label for="cost-n">Number of people offered the programme</label><input type="number" id="cost-n" min="1" step="1" value="1000" inputmode="numeric"></div>
+              <div class="field"><label for="cost-session">Provider cost per participant per session (A$)</label><span class="hint">For example, staff time, venue and transport divided by the number of participants.</span><input type="number" id="cost-session" min="0" step="1" inputmode="decimal"></div>
+            </div>
+          </div>
+        </form>
+        <div id="cost-result" aria-live="polite"></div>
+      </section>
+    </div>
+  </main>
+  <div class="acknowledgement">
+    <div class="wrap">
+      <p>We acknowledge the Traditional Custodians of the lands on which this research was carried out, and pay our respects to Elders past and present.</p>
+    </div>
+  </div>
+  <footer class="site">
+    <div class="wrap">
+      <div>
+        <h2>About this website</h2>
+        <p>Dementia Support Choices presents the results of a discrete choice experiment with 264 Australian adults, carried out by researchers at the University of Newcastle. It gives information from research. It is not medical advice and does not replace advice from health professionals, aged care assessors or service providers.</p>
+      </div>
+      <div>
+        <h2>Pages</h2>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="families.html">For families and carers</a></li>
+          <li><a href="plan.html">Plan a programme</a></li>
+          <li><a href="fees.html">Fees and access</a></li>
+          <li><a href="research.html">The research</a></li>
+          <li><a href="accessibility.html">Accessibility</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Contact</h2>
+        <p>Dr Mesfin Genie<br>Newcastle Business School<br>The University of Newcastle<br><a href="mailto:mesfin.genie@newcastle.edu.au">mesfin.genie@newcastle.edu.au</a></p>
+      </div>
+      <p class="legal">Funded by the National Health and Medical Research Council (G1401207). Approved by the University of Newcastle Human Research Ethics Committee (H-2023-0412). Text and results are available under the Creative Commons Attribution 4.0 licence; code under the MIT licence. &copy; <span data-year>2026</span> The authors.</p>
+    </div>
+  </footer>
+  <script type="module" src="assets/js/fees.js"></script>
+</body>
+</html>
