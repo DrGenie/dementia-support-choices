@@ -59,6 +59,7 @@
         <li><a href="value.html" aria-current="page">Benefits and costs</a></li>
         <li><a href="fees.html">Fees and access</a></li>
         <li><a href="research.html">The research</a></li>
+        <li><a href="glossary.html">Glossary</a></li>
       </ul>
     </div>
   </nav>
@@ -69,17 +70,16 @@
         <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a> / <span aria-current="page">Benefits and costs</span></nav>
 <span class="audience">For funders, policy makers and service providers</span>
 <h1>Benefits and costs</h1>
-        <p class="lead">Compare the value of a programme to the people who use it with what it costs to run. Choose a programme, enter your running cost, and the page gives a benefit-cost verdict with its uncertainty.</p>
+        <p class="lead">Compare the value of a programme to the people who use it with what it costs to run. Choose a programme, enter your running cost, and the page gives a benefit-cost verdict, explains it, and shows how firm it is.</p>
       </div>
     </div>
     <div class="wrap">
       <div class="progress" id="progress"></div>
 
       <section id="programme">
-        <h2>1. Choose a programme</h2>
         <div class="tool">
           <form class="panel controls" id="builder" aria-labelledby="builder-title">
-            <h3 id="builder-title" style="margin-top:0">Programme features</h3>
+            <h2 id="builder-title">1. The programme</h2>
             <div class="field">
               <label for="template">Start from an example</label>
               <select id="template"></select>
@@ -92,97 +92,95 @@
             </div>
           </form>
           <div>
-            <h3 style="margin-top:0">2. Population and running cost</h3>
-            <form class="panel" id="inputs">
+            <form class="panel" id="inputs" aria-labelledby="inputs-title">
+              <h2 id="inputs-title" style="margin-top:0">2. People and running cost</h2>
               <div class="field">
                 <label for="offered">Number of people offered the programme</label>
-                <span class="hint">For example, people living with dementia in a service area. Results scale in proportion.</span>
+                <span class="hint">For example, people living with dementia in a service area. Totals scale in proportion.</span>
                 <input type="number" id="offered" min="1" step="1" value="1000" inputmode="numeric">
-                <div class="quickbtns" id="offered-quick" aria-label="Quick choices for number of people offered"></div>
+                <div class="quickbtns" id="offered-quick" role="group" aria-label="Quick choices for number of people offered"></div>
               </div>
-              <div class="field">
+              <div class="field" id="cost-field">
                 <label for="cost">Provider cost per participant per session (A$)</label>
-                <span class="hint">Staff time, venue, materials and transport, divided by the number of participants in a session. Enter your own figure or choose one to test.</span>
-                <input type="number" id="cost" min="0" step="1" inputmode="decimal">
-                <div class="quickbtns" id="cost-quick" aria-label="Quick choices for provider cost"></div>
+                <span class="hint">Staff time, venue, materials and transport, divided by the number of participants in a session. <button type="button" class="info" data-term="running-cost" aria-expanded="false" aria-label="What running cost means"><span aria-hidden="true">i</span></button></span>
+                <input type="number" id="cost" min="0" step="1" inputmode="decimal" placeholder="For example 50">
+                <div class="quickbtns" id="cost-quick" role="group" aria-label="Quick choices for provider cost"></div>
               </div>
-              <fieldset>
-                <legend>How much of the stated benefit to count</legend>
-                <span class="hint">People may value things more in a survey than they would pay in practice. Counting less tests whether the conclusion still holds.</span>
+              <fieldset id="share-field">
+                <legend>How much of the stated value to count</legend>
+                <span class="hint">Counting less tests whether the verdict holds if people overstated what they would pay. <button type="button" class="info" data-term="benefit-share" aria-expanded="false" aria-label="What the share of stated value counted means"><span aria-hidden="true">i</span></button></span>
                 <div class="choices" id="share-choices">
                   <label><input type="radio" name="share" value="1" checked> All of it</label>
                   <label><input type="radio" name="share" value="0.75"> Three quarters</label>
                   <label><input type="radio" name="share" value="0.5"> Half</label>
                 </div>
               </fieldset>
-              <fieldset>
-                <legend>Model</legend>
-                <div class="choices" id="model-choices">
-                  <label><input type="radio" name="model" value="mxlr" checked> Mixed logit (recommended)</label>
-                  <label><input type="radio" name="model" value="mnl"> Multinomial logit</label>
-                </div>
-              </fieldset>
             </form>
+
+            <section id="result" aria-live="polite">
+              <h2>3. The result</h2>
+              <div id="verdict"></div>
+              <dl class="stats" id="bca-stats"></dl>
+              <div class="btnrow no-print">
+                <button type="button" class="btn secondary" id="copy">Copy link to this analysis</button>
+                <button type="button" class="btn secondary" id="print">Print or save as PDF</button>
+                <a class="btn secondary" id="to-plan" href="plan.html">Open in the planner</a>
+              </div>
+            </section>
           </div>
         </div>
       </section>
 
-      <section id="result" aria-live="polite">
-        <h2>3. The result</h2>
-        <div id="verdict"></div>
-        <dl class="stats" id="bca-stats"></dl>
-        <div class="table-scroll" id="bca-table"></div>
-        <div class="btnrow no-print">
-          <button type="button" class="btn secondary" id="copy">Copy link to this analysis</button>
-          <button type="button" class="btn secondary" id="print">Print or save as PDF</button>
-          <a class="btn secondary" id="to-plan" href="plan.html">Open this programme in the planner</a>
+      <div class="folds">
+      <details class="fold" id="details-fold">
+        <summary><h2>Full calculation</h2><span class="fold-hint">Every figure behind the verdict, with 95% intervals.</span></summary>
+        <div class="fold-body">
+          <dl class="stats" id="more-stats" style="margin-top:0"></dl>
+          <div class="table-scroll" id="bca-table"></div>
         </div>
-      </section>
-
-      <section id="sensitivity">
-        <h2>4. How the result changes</h2>
-        <h3>Running cost</h3>
-        <div id="cost-chart"></div>
-        <p class="small muted">The ratio of benefits to costs as the provider cost per participant per session changes, with its 95% interval. Above the dashed line at 1, benefits exceed costs.</p>
-        <div class="prose" id="cost-text"></div>
-        <h3>Fee per session</h3>
-        <div id="fee-chart"></div>
-        <p class="small muted">Net benefit to society per year as the fee changes, with its 95% interval. A fee moves money from participants to the provider, so it changes net benefit only through the number of people who take part.</p>
-        <div class="prose" id="fee-text"></div>
-      </section>
-
-      <section id="compare">
-        <h2>5. Compare with another programme</h2>
-        <div class="field" style="max-width:28rem">
-          <label for="alt">Alternative programme</label>
-          <select id="alt"></select>
+      </details>
+      <details class="fold" id="sensitivity" open>
+        <summary><h2>How the result changes with the running cost</h2><span class="fold-hint">The benefit-cost ratio for running costs from A$20 to A$200.</span></summary>
+        <div class="fold-body">
+          <div id="cost-chart"></div>
+          <p class="small muted">Above the dashed line at 1, benefits exceed costs. The shaded band is the 95% interval. Move the pointer over the chart to read values.</p>
+          <div id="cost-text"></div>
         </div>
-        <div id="compare-result"></div>
-      </section>
-
-      <section id="method">
-        <h2>How the numbers are calculated</h2>
-        <details>
-          <summary>Benefit to participants</summary>
-          <p>For each person offered the programme, the choice model gives the money value of having the programme available compared with no programme, net of the fee (the expected consumer surplus, from the "logsum" of the choice probabilities). It is measured per session, because the fee and willingness to pay in the study were per session. The yearly benefit is this value multiplied by the number of people offered and the number of sessions in a year, plus the fees participants pay.</p>
-        </details>
-        <details>
-          <summary>Costs, fees and net benefit</summary>
-          <p>The running cost is the provider cost per participant per session multiplied by the expected number of participants and the number of sessions in a year. Fees are paid by participants to the provider, so they appear on both sides and cancel out of the net benefit to society. The benefit-cost ratio is total benefit to participants (including fees) divided by the running cost.</p>
-        </details>
-        <details>
-          <summary>Break-even running cost</summary>
-          <p>The break-even running cost is the provider cost per participant per session at which benefits equal costs. If your programme costs less than this to run, it passes the benefit-cost test. It needs no cost information, so it is a useful first check.</p>
-        </details>
-        <details>
-          <summary>Traffic lights</summary>
-          <p>Green: benefits exceed costs and the 95% interval for the benefit-cost ratio is above 1. Amber: the interval includes 1, so the result is uncertain. Red: costs exceed benefits even at the upper end of the interval.</p>
-        </details>
-        <details>
-          <summary>What is not included</summary>
-          <p>The benefit is what respondents valued about the programme when choosing for a loved one. Health effects that people were not aware of, effects on carers' paid work, and savings to other services are not counted separately. The analysis covers one year, assumes participants attend every session, and assumes everyone offered the programme makes one decision about it. Values from a survey can be higher than what people would pay in practice.</p>
-        </details>
-      </section>
+      </details>
+      <details class="fold" id="fee-fold">
+        <summary><h2>How the result changes with the fee</h2><span class="fold-hint">Net benefit per year for fees from free to A$50.</span></summary>
+        <div class="fold-body">
+          <div id="fee-chart"></div>
+          <p class="small muted">A fee moves money from participants to the provider, so it changes net benefit only through the number of people who take part.</p>
+          <div id="fee-text"></div>
+        </div>
+      </details>
+      <details class="fold" id="compare">
+        <summary><h2>Compare with another programme</h2><span class="fold-hint">Your programme against one of the study examples, using the same people and running cost.</span></summary>
+        <div class="fold-body">
+          <div class="field" style="max-width:28rem">
+            <label for="alt">Alternative programme</label>
+            <select id="alt"></select>
+          </div>
+          <div id="compare-result"></div>
+        </div>
+      </details>
+      <details class="fold" id="method">
+        <summary><h2>How the numbers are calculated</h2></summary>
+        <div class="fold-body">
+          <div class="prose">
+            <h3>Benefit to participants</h3>
+            <p>For each person offered the programme, the mixed logit choice model <button type="button" class="info" data-term="model" aria-expanded="false" aria-label="What the choice model means"><span aria-hidden="true">i</span></button> gives the money value of having the programme available compared with no programme, net of the fee. Economists call this consumer surplus; it is calculated from all the choice probabilities at once (the "logsum"). It is measured per session, because fees and values in the study were per session. The yearly benefit is this value multiplied by the number of people offered and the number of sessions in a year, plus the fees participants pay.</p>
+            <h3>Costs, fees and net benefit</h3>
+            <p>The running cost is the provider cost per participant per session multiplied by the expected number of participants and sessions. Fees are paid by participants to the provider, so they appear on both sides and cancel out of the net benefit to society. The benefit-cost ratio is the total benefit to participants, including fees, divided by the running cost.</p>
+            <h3>Traffic lights</h3>
+            <p>Green: the whole 95% interval for the benefit-cost ratio is above 1. Amber: the interval includes 1, so the result is uncertain. Red: the whole interval is below 1.</p>
+            <h3>What is not included</h3>
+            <p>The benefit is what respondents valued about the programme when choosing for a loved one. Health effects people were not aware of, effects on carers' paid work, and savings to other services are not counted. The analysis covers one year, assumes participants attend every session, and assumes everyone offered the programme makes one decision about it. Values stated in a survey can be higher than what people would pay in practice <button type="button" class="info" data-term="hypothetical-bias" aria-expanded="false" aria-label="What hypothetical bias means"><span aria-hidden="true">i</span></button>.</p>
+          </div>
+        </div>
+      </details>
+      </div>
     </div>
   </main>
   <div class="acknowledgement">
@@ -205,6 +203,7 @@
           <li><a href="value.html">Benefits and costs</a></li>
           <li><a href="fees.html">Fees and access</a></li>
           <li><a href="research.html">The research</a></li>
+          <li><a href="glossary.html">Glossary</a></li>
           <li><a href="accessibility.html">Accessibility</a></li>
           <li><a href="privacy.html">Privacy</a></li>
         </ul>

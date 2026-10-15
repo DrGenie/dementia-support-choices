@@ -18,6 +18,12 @@ for (const r of e.validate()) {
 const published = { 'caregiver: Yes': 17.5, 'type: Psychological counselling': 16.5, 'frequency: Weekly': 15.4,
   'distance: Wider community (50+ km)': -21.0 };
 const w = e.wtp('mnl');
+// Mixed logit mean WTP (MATLAB table6_wtp_main.csv: carer 15.44, counselling 15.98, weekly 14.41, 50 km+ -24.90)
+const wm = e.wtp('mxlr');
+for (const [param, val] of Object.entries({ 'caregiver: Yes': 15.44, 'type: Psychological counselling': 15.98, 'frequency: Weekly': 14.41, 'distance: Wider community (50+ km)': -24.90 })) {
+  const row = wm.find((x) => e.level(x.attribute, x.level).param === param);
+  check(Math.abs(row.point - val) < 0.06, `Mixed logit WTP ${row.label} ${row.point.toFixed(2)} vs MATLAB ${val}`);
+}
 for (const [param, val] of Object.entries(published)) {
   const row = w.find((x) => e.level(x.attribute, x.level).param === param);
   check(Math.abs(row.point - val) < 0.06, `WTP ${row.label} ${row.point.toFixed(2)} vs published ${val}`);

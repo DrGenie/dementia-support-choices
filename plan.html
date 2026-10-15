@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Plan a programme | Dementia Support Choices</title>
-  <meta name="description" content="Build a dementia support programme from seven features and see predicted take-up, the share who would keep it, and which single change would raise take-up most.">
+  <meta name="description" content="Build a dementia support programme from seven features and see predicted take-up, where the design could improve, and its value to families.">
   <meta name="theme-color" content="#3b2550">
   <meta property="og:title" content="Plan a programme | Dementia Support Choices">
-  <meta property="og:description" content="Build a dementia support programme from seven features and see predicted take-up, the share who would keep it, and which single change would raise take-up most.">
+  <meta property="og:description" content="Build a dementia support programme from seven features and see predicted take-up, where the design could improve, and its value to families.">
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -59,6 +59,7 @@
         <li><a href="value.html">Benefits and costs</a></li>
         <li><a href="fees.html">Fees and access</a></li>
         <li><a href="research.html">The research</a></li>
+        <li><a href="glossary.html">Glossary</a></li>
       </ul>
     </div>
   </nav>
@@ -69,7 +70,7 @@
         <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a> / <span aria-current="page">Plan a programme</span></nav>
 <span class="audience">For service providers and programme designers</span>
 <h1>Plan a programme</h1>
-        <p class="lead">Choose the features of a programme. The results show how many people in our study population would be expected to choose it rather than no programme, and which single change would raise take-up the most.</p>
+        <p class="lead">Choose the features of a programme. The results show how many people would be expected to choose it rather than no programme, what that means, and which features are holding it back.</p>
       </div>
     </div>
     <div class="wrap">
@@ -87,68 +88,73 @@
             <input type="range" id="price" min="0" max="50" step="1" value="0" aria-describedby="price-hint">
             <span class="hint" id="price-hint">The study tested free, A$5, A$20 and A$50.</span>
           </div>
-          <p class="hint">Some combinations were not shown in the study, for example group programmes held in your own home. Those options are greyed out.</p>
-          <div class="btnrow">
-            <button type="button" class="btn secondary" id="add-compare">Add to comparison</button>
-            <button type="button" class="btn secondary" id="copy">Copy link to this programme</button>
-            <button type="button" class="btn secondary" id="print">Print or save as PDF</button>
-            <button type="button" class="btn secondary" id="reset">Start again</button>
+          <p class="hint">Greyed-out options were not part of the study with the other features chosen. <button type="button" class="info" data-term="study-design" aria-expanded="false" aria-label="What greyed-out options means"><span aria-hidden="true">i</span></button></p>
+          <div class="actions-small">
+            <button type="button" class="linkbtn" id="copy">Copy link</button>
+            <button type="button" class="linkbtn" id="print">Print or save as PDF</button>
+            <button type="button" class="linkbtn" id="reset">Start again</button>
           </div>
         </form>
 
-        <div id="results" aria-live="polite">
+        <div id="results">
           <p class="print-only" id="print-design"></p>
-          <div class="readout">
+          <div class="readout" aria-live="polite">
             <div>
               <div class="readout-number" id="uptake-number">&nbsp;</div>
-              <div class="readout-label" id="uptake-label"></div>
-              <p class="range" id="uptake-range"></p>
-              <p id="rating"></p>
+              <div class="readout-label"><span id="uptake-label"></span> <button type="button" class="info" data-term="take-up" aria-expanded="false" aria-label="What take-up means"><span aria-hidden="true">i</span></button></div>
+              <p class="range"><span id="uptake-range"></span> <button type="button" class="info" data-term="interval" aria-expanded="false" aria-label="What the 95% interval means"><span aria-hidden="true">i</span></button></p>
+              <p><span id="rating"></span> <button type="button" class="info" data-term="rating" aria-expanded="false" aria-label="What the design rating means"><span aria-hidden="true">i</span></button></p>
             </div>
             <div>
               <div id="uptake-array"></div>
               <p class="icon-key"><span class="yes">would take it up</span><span class="no">would choose no programme</span></p>
             </div>
           </div>
-
-          <h2 class="no-print" style="margin-top:1.4rem">Quick changes</h2>
-          <p class="prose no-print">Each button changes one feature. A message at the bottom right tells you what changed.</p>
-          <div class="quick" id="quick"></div>
-
+          <div id="meaning"></div>
           <dl class="stats" id="stats"></dl>
-          <p class="btnrow no-print"><a class="btn" id="to-value" href="value.html">Check the benefits and costs of this programme</a></p>
+          <div class="btnrow no-print">
+            <a class="btn" id="to-value" href="value.html">Check benefits and costs</a>
+            <button type="button" class="btn secondary" id="add-compare">Add to comparison</button>
+          </div>
 
-          <h2>Who it reaches</h2>
-          <div class="prose" id="reach"></div>
-
-          <h2>Changes that would raise take-up most</h2>
-          <p class="prose">Each row changes one feature and keeps everything else the same. Only changes allowed by the study design are shown.</p>
-          <ul class="changes" id="changes"></ul>
-
-          <h2 id="compare-title">Compare programmes</h2>
+          <div class="folds">
+      <details class="fold" id="improve" open>
+        <summary><h2>Where this programme could improve</h2><span class="fold-hint">Each feature checked against the best option the study allows with the rest of the design.</span></summary>
+        <div class="fold-body">
+          <p class="prose">Green means the current choice is already the best, amber a small gain is possible, red a gain of more than 5 in 100. <button type="button" class="info" data-term="improve" aria-expanded="false" aria-label="What the improvement lights means"><span aria-hidden="true">i</span></button></p>
+          <ul class="improve" id="improve-list"></ul>
+          <p class="btnrow no-print" style="margin-top:0.6rem"><button type="button" class="btn secondary" id="apply-all">Use the best design at this fee</button></p>
+        </div>
+      </details>
+      <details class="fold" id="reach-fold">
+        <summary><h2>Who it reaches</h2><span class="fold-hint">How likely different people are to use it, and who it will miss.</span></summary>
+        <div class="fold-body">
+          <div id="reach"></div>
+        </div>
+      </details>
+      <details class="fold" id="participant">
+        <summary><h2>What it asks of a participant</h2><span class="fold-hint">Cost and time over a year.</span></summary>
+        <div class="fold-body">
+          <dl class="stats" id="participant-stats" style="margin-top:0"></dl>
+        </div>
+      </details>
+      <details class="fold" id="compare-fold">
+        <summary><h2 id="compare-title">Compare programmes</h2><span class="fold-hint">Up to three programmes side by side.</span></summary>
+        <div class="fold-body">
           <div id="compare"><p class="muted">Use "Add to comparison" to compare up to three programmes side by side.</p></div>
-
-          <h2>How these numbers are calculated</h2>
-          <details>
-            <summary>Take-up</summary>
-            <p>Take-up is the predicted share of people who would choose this programme rather than no programme if it were offered on its own. The main figure comes from a mixed logit model, which allows people to differ in how much they value each feature and in how willing they are to use any programme at all. The range is a 95% interval that reflects uncertainty in the estimates. A simpler model that treats everyone as having the same preferences is shown for comparison.</p>
-          </details>
-          <details>
-            <summary>Keeping the programme once chosen</summary>
-            <p>After choosing between two programmes, people in the study said whether they would keep their choice if they could choose neither. A separate model of that second answer gives the share who would keep this programme once they had picked it.</p>
-          </details>
-          <details>
-            <summary>Value to families and break-even running cost</summary>
-            <p>The value to families is the money value of having the programme available, compared with no programme, averaged over everyone offered it and net of the fee. It comes from the choice model (the "logsum" measure of consumer surplus). The break-even running cost is the provider cost per participant per session at which the value to participants, including the fees they pay, equals the cost of running the programme. See <a href="value.html">Benefits and costs</a> for the full calculation.</p>
-          </details>
-          <details>
-            <summary>Lived experience</summary>
-            <p>People in daily or weekly contact with someone living with dementia valued carer inclusion about three times as much as people without lived experience. The comparison uses a model that lets the value of carer inclusion depend on caring responsibilities, a close family member with dementia, and frequency of contact.</p>
-          </details>
-          <details>
-            <summary>Limits of these predictions</summary>
-            <p>These are predictions of stated choices from 264 Australian adults recruited through an online panel. They are not forecasts of attendance at a particular service, and they do not include provider costs, waiting lists or local availability. Costs outside A$0 to A$50 per session were not tested and cannot be selected.</p>
-          </details>
+        </div>
+      </details>
+      <details class="fold" id="method">
+        <summary><h2>How these numbers are calculated</h2></summary>
+        <div class="fold-body">
+          <div class="prose">
+            <p>All results on this page come from the mixed logit choice model <button type="button" class="info" data-term="model" aria-expanded="false" aria-label="What the choice model means"><span aria-hidden="true">i</span></button> estimated from the choices of 264 Australian adults. The model represents the population with 1,000 simulated people whose preferences vary in the way the study found. Take-up is the average, over these people, of the chance of choosing the programme rather than no programme. The 95% intervals repeat the calculation for 1,000 redrawn sets of estimates.</p>
+            <p>The value to families is the money value of having the programme available compared with no programme, net of the fee, averaged over everyone offered it. The break-even running cost is the provider cost per participant per session at which that value, plus the fees paid, equals the cost of running it. <a href="value.html">Benefits and costs</a> shows the full calculation.</p>
+            <p>These are predictions of stated choices, not forecasts of attendance at a particular service. They do not include waiting lists, local availability or how a programme is promoted. Fees outside A$0 to A$50 per session were not tested and cannot be selected. Terms are explained in the <a href="glossary.html">glossary</a>.</p>
+          </div>
+        </div>
+      </details>
+          </div>
         </div>
       </div>
     </div>
@@ -173,6 +179,7 @@
           <li><a href="value.html">Benefits and costs</a></li>
           <li><a href="fees.html">Fees and access</a></li>
           <li><a href="research.html">The research</a></li>
+          <li><a href="glossary.html">Glossary</a></li>
           <li><a href="accessibility.html">Accessibility</a></li>
           <li><a href="privacy.html">Privacy</a></li>
         </ul>

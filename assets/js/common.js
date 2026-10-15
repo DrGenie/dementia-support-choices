@@ -1,5 +1,6 @@
 // Shared page behaviour: text size, model loading, formatting and small helpers.
 import { loadEngine } from './engine.js';
+import { GLOSSARY } from './glossary.js';
 
 // ------------------------------------------------------------ text size
 const TEXT_KEY = 'dsc-text-size';
@@ -95,6 +96,8 @@ export function showError(where, err) {
 // Load the model once and run the page code
 export async function boot(run) {
   initTextSize();
+  initInfo();
+  initFolds();
   document.querySelectorAll('[data-year]').forEach((n) => { n.textContent = String(new Date().getFullYear()); });
   if (!run) return;
   const main = document.querySelector('main');
@@ -251,4 +254,122 @@ export async function copyLink() {
   } catch (e) {
     toast({ level: 'amber', title: 'Copy the link from the address bar', message: 'Your browser did not allow automatic copying. The address bar already contains this programme.' });
   }
+}
+
+// ------------------------------------------------------------ (i) explanations
+// Any <button class="info" data-term="key"> opens a short explanation from the glossary.
+// Pages can add a sentence about the current programme with setContext(key, () => text);
+// an open explanation is refreshed when the page calls refreshInfo().
+const contexts = {};
+let pop = null, popFor = null;
+export function setContext(key, fn) { contexts[key] = fn; }
+
+export function infoBtn(key, label) {
+  const g = GLOSSARY[key];
+  return el('button', { type: 'button', class: 'info', 'data-term': key, 'aria-expanded': 'false',
+    'aria-label': `What ${label || (g ? g.term.toLowerCase() : key)} means` }, el('span', { 'aria-hidden': 'true' }, 'i'));
+}
+
+function fillPop(btn) {
+  const key = btn.dataset.term;
+  const g = GLOSSARY[key];
+  if (!g) return;
+  const ctx = contexts[key] ? contexts[key]() : null;
+  pop.replaceChildren(
+    el('p', { class: 'pop-term', id: 'pop-title' }, g.term),
+    el('p', {}, g.text),
+    ctx ? el('p', { class: 'pop-now' }, el('strong', {}, 'For the programme on this page: '), ctx) : null,
+    el('p', { class: 'pop-links' }, el('a', { href: `glossary.html#${key}` }, 'All terms in the glossary')),
+    el('button', { type: 'button', class: 'pop-close', 'aria-label': 'Close explanation', onclick: () => closeInfo(true) }, '×'));
+}
+
+function placePop(btn) {
+  const r = btn.getBoundingClientRect();
+  const narrow = window.innerWidth < 560;
+  pop.classList.toggle('pop-sheet', narrow);
+  if (narrow) { pop.style.left = ''; pop.style.top = ''; return; }
+  const w = Math.min(380, window.innerWidth - 32);
+  let left = r.left + window.scrollX - 12;
+  left = Math.max(16 + window.scrollX, Math.min(left, window.scrollX + window.innerWidth - w - 16));
+  pop.style.width = `${w}px`;
+  pop.style.left = `${left}px`;
+  pop.style.top = `${r.bottom + window.scrollY + 8}px`;
+}
+
+function openInfo(btn) {
+  if (!pop) {
+    pop = el('div', { class: 'pop', role: 'dialog', 'aria-labelledby': 'pop-title', hidden: true });
+    document.body.append(pop);
+  }
+  if (popFor === btn) { closeInfo(true); return; }
+  closeInfo(false);
+  popFor = btn;
+  fillPop(btn);
+  pop.hidden = false;
+  placePop(btn);
+  btn.setAttribute('aria-expanded', 'true');
+  pop.querySelector('.pop-close').focus({ preventScroll: true });
+}
+
+export function closeInfo(returnFocus) {
+  if (!pop || pop.hidden) return;
+  pop.hidden = true;
+  if (popFor) {
+    popFor.setAttribute('aria-expanded', 'false');
+    if (returnFocus && document.contains(popFor)) popFor.focus({ preventScroll: true });
+  }
+  popFor = null;
+}
+
+export function refreshInfo() {
+  if (pop && !pop.hidden && popFor && document.contains(popFor)) fillPop(popFor);
+  else if (pop && !pop.hidden) closeInfo(false);
+}
+
+function initInfo() {
+  document.addEventListener('click', (ev) => {
+    const b = ev.target.closest('button.info');
+    if (b) { ev.preventDefault(); openInfo(b); return; }
+    if (pop && !pop.hidden && !pop.contains(ev.target)) closeInfo(false);
+  });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeInfo(true); });
+  window.addEventListener('resize', debounce(() => { if (popFor) placePop(popFor); }, 100));
+}
+
+// ------------------------------------------------------------ folding sections
+// <details class="fold"> sections open when a link points at them or at something inside them.
+export function reveal(target) {
+  let n = typeof target === 'string' ? document.querySelector(target) : target;
+  if (!n) return null;
+  for (let p = n; p; p = p.parentElement) if (p.tagName === 'DETAILS' && !p.open) p.open = true;
+  return n;
+}
+export function goTo(selector) {
+  const n = reveal(selector);
+  if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function initFolds() {
+  window.addEventListener('beforeprint', () => document.querySelectorAll('details.fold:not([open])').forEach((d) => { d.open = true; d.dataset.printOpened = '1'; }));
+  window.addEventListener('afterprint', () => document.querySelectorAll('details.fold[data-print-opened]').forEach((d) => { d.open = false; delete d.dataset.printOpened; }));
+  const fromHash = () => { if (location.hash.length > 1) { try { reveal(decodeURIComponent(location.hash)); } catch (e) { /* bad selector */ } } };
+  fromHash();
+  window.addEventListener('hashchange', fromHash);
+  document.addEventListener('click', (ev) => {
+    const a = ev.target.closest('a[href^="#"]');
+    if (a && a.getAttribute('href').length > 1) { try { reveal(a.getAttribute('href')); } catch (e) { /* ignore */ } }
+  });
+}
+
+// ------------------------------------------------------------ small building blocks
+// A figure with a label and an (i) button
+export function stat(label, value, note, term) {
+  return el('div', { class: 'stat' },
+    el('dt', {}, label, term ? infoBtn(term, label.toLowerCase()) : null),
+    el('dd', {}, value, note ? el('small', {}, note) : null));
+}
+
+// "What this means" box: a short heading and plain sentences that change with the inputs
+export function meaning(container, level, paragraphs) {
+  container.className = `meaning${level ? ` meaning-${level}` : ''}`;
+  container.replaceChildren(el('h3', {}, 'What this means'), ...paragraphs.filter(Boolean).map((p) => (typeof p === 'string' ? el('p', {}, p) : p)));
 }

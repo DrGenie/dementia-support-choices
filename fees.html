@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fees and access | Dementia Support Choices</title>
-  <meta name="description" content="Test how a fee changes take-up of a dementia support programme, where people go when fees rise, the effect of travel distance, and the cost of reaching more people.">
+  <meta name="description" content="Test how a fee changes take-up of a dementia support programme, where people go when fees rise, the effect of travel distance, and who a programme will miss.">
   <meta name="theme-color" content="#3b2550">
   <meta property="og:title" content="Fees and access | Dementia Support Choices">
-  <meta property="og:description" content="Test how a fee changes take-up of a dementia support programme, where people go when fees rise, the effect of travel distance, and the cost of reaching more people.">
+  <meta property="og:description" content="Test how a fee changes take-up of a dementia support programme, where people go when fees rise, the effect of travel distance, and who a programme will miss.">
   <meta property="og:type" content="website">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -59,6 +59,7 @@
         <li><a href="value.html">Benefits and costs</a></li>
         <li><a href="fees.html" aria-current="page">Fees and access</a></li>
         <li><a href="research.html">The research</a></li>
+        <li><a href="glossary.html">Glossary</a></li>
       </ul>
     </div>
   </nav>
@@ -69,26 +70,16 @@
         <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a> / <span aria-current="page">Fees, access and coverage</span></nav>
 <span class="audience">For policy makers and funders</span>
 <h1>Fees, access and coverage</h1>
-        <p class="lead">Use the study results to see how fees and travel affect take-up of dementia support programmes, and who a programme is likely to miss.</p>
+        <p class="lead">See how fees and travel affect take-up of a dementia support programme, where people go when a fee rises, and who a programme is likely to miss.</p>
       </div>
     </div>
     <div class="wrap">
-      <nav class="toc" aria-label="On this page">
-        <h2>On this page</h2>
-        <ol>
-          <li><a href="#fee">How a fee changes take-up</a></li>
-          <li><a href="#switching">Where people go when a fee rises</a></li>
-          <li><a href="#travel">Travel distance and delivery mode</a></li>
-          <li><a href="#reach">Who a programme will not reach</a></li>
-          <li><a href="#cost">Cost of reaching more people</a></li>
-        </ol>
-      </nav>
       <div class="progress" id="progress"></div>
 
       <section id="fee">
-        <h2>How a fee changes take-up</h2>
         <div class="tool">
           <div class="panel controls">
+            <h2 style="margin-top:0">Programme and fee</h2>
             <div class="field">
               <label for="fee-programme">Programme</label>
               <select id="fee-programme"></select>
@@ -98,81 +89,64 @@
               <label for="fee-input">Fee per session: <span class="pricevalue" id="fee-out"></span></label>
               <input type="range" id="fee-input" min="0" max="50" step="1" value="20">
             </div>
+            <p class="hint">Every section of this page uses this programme and fee.</p>
           </div>
           <div aria-live="polite">
-            <dl class="stats" id="fee-stats"></dl>
+            <h2 style="margin-top:0">How a fee changes take-up</h2>
+            <dl class="stats" id="fee-stats" style="margin-top:0.6rem"></dl>
+            <div id="fee-meaning"></div>
             <div id="fee-chart"></div>
-            <p class="small muted">Lines show predicted take-up against no programme as the fee changes; shaded areas are 95% intervals. Move the pointer over the chart to read values.</p>
-            <div class="prose" id="fee-text"></div>
-            <h3>Sensitivity to price</h3>
-            <div id="elasticity-chart"></div>
-            <p class="small muted">Price elasticity is the percentage change in take-up for a 1% increase in the fee. Values between 0 and -1 mean take-up falls by proportionally less than the fee rises.</p>
-          </div>
-        </div>
-        <details>
-          <summary>Why there are three lines</summary>
-          <p>The multinomial logit with a straight-line cost treats every dollar as equally off-putting. The piecewise model lets the first dollars count for more than later ones, which the data supported: moving from free to A$5 per session reduced appeal about as much as moving from A$20 to A$50. The mixed logit allows people to differ, including in their willingness to use any programme at all.</p>
-        </details>
-      </section>
-
-      <section id="switching">
-        <h2>Where people go when a fee rises</h2>
-        <div class="prose">
-          <p>When two programmes are available, a fee on one of them can move people to the other programme or out of support altogether. Choose a second programme and its fee. The fee for the first programme is set above.</p>
-        </div>
-        <div class="tool">
-          <div class="panel controls">
-            <div class="field">
-              <label for="alt-programme">Second programme</label>
-              <select id="alt-programme"></select>
-            </div>
-            <div class="field">
-              <label for="alt-fee">Its fee per session: <span class="pricevalue" id="alt-fee-out"></span></label>
-              <input type="range" id="alt-fee" min="0" max="50" step="1" value="20">
-            </div>
-          </div>
-          <div aria-live="polite">
-            <div id="share-chart"></div>
-            <div class="prose" id="switch-text"></div>
+            <p class="small muted">The line shows predicted take-up as the fee changes; the shaded band is the 95% interval. Move the pointer over the chart to read values.</p>
           </div>
         </div>
       </section>
 
-      <section id="travel">
-        <h2>Travel distance and delivery mode</h2>
-        <div class="prose">
-          <p>Predicted take-up of the programme chosen above when only travel and delivery mode change. Online programmes were always delivered at home in the study, and group programmes were not delivered at home in person.</p>
+      <div class="folds">
+      <details class="fold" id="elasticity">
+        <summary><h2>Price sensitivity across fees</h2><span class="fold-hint">How strongly take-up responds to a fee rise at each fee.</span></summary>
+        <div class="fold-body">
+          <div id="elasticity-chart"></div>
+          <p class="small muted">Price sensitivity is the percentage change in take-up for a 1% rise in the fee. <button type="button" class="info" data-term="elasticity" aria-expanded="false" aria-label="What price sensitivity means"><span aria-hidden="true">i</span></button></p>
+          <div id="elasticity-text"></div>
         </div>
-        <div class="table-scroll" id="travel-table"></div>
-        <div class="prose" id="travel-text"></div>
-      </section>
-
-      <section id="reach">
-        <h2>Who a programme will not reach</h2>
-        <div class="prose" id="reach-text"></div>
-        <div class="table-scroll" id="class-table"></div>
-      </section>
-
-      <section id="cost">
-        <h2>Cost of reaching more people</h2>
-        <div class="prose">
-          <p>Compare a current programme with an alternative for a population of people offered support. Enter your own provider cost per session; the study does not include provider costs. Fees paid by participants are subtracted from the provider cost.</p>
-        </div>
-        <form class="panel" id="cost-form" style="max-width:56rem">
-          <div class="twocol">
-            <div>
-              <div class="field"><label for="cost-current">Current programme</label><select id="cost-current"></select></div>
-              <div class="field"><label for="cost-alt">Alternative programme</label><select id="cost-alt"></select></div>
+      </details>
+      <details class="fold" id="switching">
+        <summary><h2>Where people go when a fee rises</h2><span class="fold-hint">With two programmes on offer, a fee can move people to the other programme or out of support.</span></summary>
+        <div class="fold-body">
+          <div class="tool" style="margin-top:0.4rem">
+            <div class="panel">
+              <div class="field">
+                <label for="alt-programme">Second programme</label>
+                <select id="alt-programme"></select>
+              </div>
+              <div class="field">
+                <label for="alt-fee">Its fee per session: <span class="pricevalue" id="alt-fee-out"></span></label>
+                <input type="range" id="alt-fee" min="0" max="50" step="1" value="20">
+              </div>
             </div>
-            <div>
-              <div class="field"><label for="cost-n">Number of people offered the programme</label><input type="number" id="cost-n" min="1" step="1" value="1000" inputmode="numeric"></div>
-              <div class="field"><label for="cost-session">Provider cost per participant per session (A$)</label><span class="hint">For example, staff time, venue and transport divided by the number of participants.</span><input type="number" id="cost-session" min="0" step="1" inputmode="decimal"></div>
+            <div aria-live="polite">
+              <div id="share-chart"></div>
+              <div id="switch-text"></div>
             </div>
           </div>
-        </form>
-        <div id="cost-result" aria-live="polite"></div>
-        <p class="btnrow"><a class="btn" href="value.html">Go to the full benefit-cost analysis</a></p>
-      </section>
+        </div>
+      </details>
+      <details class="fold" id="travel">
+        <summary><h2>Travel distance and delivery mode</h2><span class="fold-hint">Take-up when only travel and delivery mode change.</span></summary>
+        <div class="fold-body">
+          <p class="prose">Online programmes were always delivered at home in the study, and group programmes were not delivered at home in person, so some cells are not available.</p>
+          <div class="table-scroll" id="travel-table"></div>
+          <div id="travel-text"></div>
+        </div>
+      </details>
+      <details class="fold" id="reach">
+        <summary><h2>Who a programme will not reach</h2><span class="fold-hint">People who would not use it even if it were free.</span></summary>
+        <div class="fold-body">
+          <div id="reach-text"></div>
+        </div>
+      </details>
+      </div>
+      <p class="btnrow"><a class="btn" id="to-value" href="value.html">Check the benefits and costs of this programme</a> <a class="btn secondary" id="to-plan" href="plan.html">Open it in the planner</a></p>
     </div>
   </main>
   <div class="acknowledgement">
@@ -195,6 +169,7 @@
           <li><a href="value.html">Benefits and costs</a></li>
           <li><a href="fees.html">Fees and access</a></li>
           <li><a href="research.html">The research</a></li>
+          <li><a href="glossary.html">Glossary</a></li>
           <li><a href="accessibility.html">Accessibility</a></li>
           <li><a href="privacy.html">Privacy</a></li>
         </ul>

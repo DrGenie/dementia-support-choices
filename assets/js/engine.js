@@ -134,9 +134,16 @@ export class Engine {
     return { point: f(block.theta), ci: interval(block.draws.map(f)) };
   }
 
-  // Willingness to pay (A$ per session) for each non-reference level, MNL
-  wtp(modelName = 'mnl') {
-    const block = this.m.models[modelName];
+  // Point estimates and parameter draws of the mean preferences. For the mixed logit these
+  // are the means of the random coefficients (the cost coefficient is fixed).
+  meanBlock(modelName) {
+    const b = this.m.models[modelName];
+    return modelName === 'mxlr' ? { theta: b.mean, draws: b.draws_mean } : { theta: b.theta, draws: b.draws };
+  }
+
+  // Willingness to pay (A$ per session) for each non-reference level
+  wtp(modelName = 'mxlr') {
+    const block = this.meanBlock(modelName);
     const ix = this.idx[modelName];
     const c = ix.get(COST);
     const out = [];
@@ -157,8 +164,8 @@ export class Engine {
   }
 
   // Relative importance: range of part-worths / sum of ranges (cost over A$0 to A$50)
-  relativeImportance(modelName = 'mnl') {
-    const block = this.m.models[modelName];
+  relativeImportance(modelName = 'mxlr') {
+    const block = this.meanBlock(modelName);
     const ix = this.idx[modelName];
     const f = (th) => {
       const ranges = this.attributes.map((a) => {
@@ -296,6 +303,26 @@ export class Engine {
     return { neverShare: never, medianReservation: quantile(res, 0.5) };
   }
 
+  // Price elasticity of take-up at the design's fee, mixed logit, with a 95% interval
+  elasticityMxl(design, nDraws = 200) {
+    if (design.price === 0) return { point: 0, ci: [0, 0] };
+    const e = this.mxlCurve(design, [design.price], nDraws).elasticity[0];
+    return { point: e.point, ci: [e.lo, e.hi] };
+  }
+
+  // How the simulated people split by their own chance of choosing the programme (mixed logit)
+  spread(design, hi = 0.8, lo = 0.2) {
+    const { b } = this.mxl();
+    const d = this.mxlBase(design, b.mean, b.sd);
+    let likely = 0, unlikely = 0;
+    for (let i = 0; i < d.base.length; i++) {
+      const p = 1 / (1 + Math.exp(-(d.base[i] + d.bc * design.price)));
+      if (p >= hi) likely++; else if (p < lo) unlikely++;
+    }
+    const n = d.base.length;
+    return { likely: likely / n, unsure: (n - likely - unlikely) / n, unlikely: unlikely / n };
+  }
+
   // Two programmes A and B plus neither. Shares and diversion when the price of A rises.
   substitution(designA, designB) {
     // MNL
@@ -363,6 +390,32 @@ export class Engine {
         change: this.uptakeMxl(d, 0).point - base, design: d });
     }
     return out.sort((x, y) => y.change - x.change);
+  }
+
+
+  // For each attribute: the current level, the best level allowed with the other features,
+  // and the change in take-up from switching to it (mixed logit)
+  improvements(design) {
+    const base = this.uptakeMxl(design, 0).point;
+    const out = this.attributes.map((a) => {
+      let best = { key: design[a.key], gain: 0 };
+      for (const l of a.levels) {
+        if (l.key === design[a.key]) continue;
+        const d = { ...design, [a.key]: l.key };
+        if (!this.isFeasible(d)) continue;
+        const g = this.uptakeMxl(d, 0).point - base;
+        if (g > best.gain) best = { key: l.key, gain: g };
+      }
+      return { key: a.key, label: a.label, current: this.label(a.key, design[a.key]),
+        best: this.label(a.key, best.key), gain: best.gain, design: { ...design, [a.key]: best.key } };
+    });
+    if (design.price > 0) {
+      const g = this.uptakeMxl({ ...design, price: 0 }, 0).point - base;
+      out.push({ key: 'price', label: 'Cost per session', current: `A$${design.price}`, best: 'Free', gain: g, design: { ...design, price: 0 } });
+    } else {
+      out.push({ key: 'price', label: 'Cost per session', current: 'Free', best: 'Free', gain: 0, design: { ...design } });
+    }
+    return out;
   }
 
   // All permitted combinations of the non-cost attributes

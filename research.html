@@ -59,6 +59,7 @@
         <li><a href="value.html">Benefits and costs</a></li>
         <li><a href="fees.html">Fees and access</a></li>
         <li><a href="research.html" aria-current="page">The research</a></li>
+        <li><a href="glossary.html">Glossary</a></li>
       </ul>
     </div>
   </nav>
@@ -78,9 +79,10 @@
           <li><a href="#design">How the study was done</a></li>
           <li><a href="#sample">Who took part</a></li>
           <li><a href="#results">Main results</a></li>
-          <li><a href="#methods">Models used on this website</a></li>
+          <li><a href="#methods">How the website calculates its results</a></li>
           <li><a href="#benefits">How benefits are measured</a></li>
           <li><a href="#limits">Limitations</a></li>
+          <li><a href="#improve">Where the tool and the evidence need to improve</a></li>
           <li><a href="#check">Check against the published analysis</a></li>
           <li><a href="#cite">Downloads and how to cite</a></li>
           <li><a href="#team">Research team, funding and ethics</a></li>
@@ -90,8 +92,8 @@
       <section id="design">
         <h2>How the study was done</h2>
         <div class="prose">
-          <p>We used a discrete choice experiment, a survey method widely used in health economics to measure what people value. Respondents were asked to imagine they were looking for a programme to help a loved one living with dementia, and that an informal carer could attend with them. Each respondent saw eight choice tasks. Each task showed two programmes, A and B, described by seven features.</p>
-          <p>Respondents first chose the better of the two programmes, then answered: "If you have the option not to choose either of these programs, will your choice remain the same?" This dual-response format records both which programme is preferred and whether it would be used at all.</p>
+          <p>We used a discrete choice experiment <button type="button" class="info" data-term="dce" aria-expanded="false" aria-label="What a discrete choice experiment means"><span aria-hidden="true">i</span></button>, a survey method widely used in health economics to measure what people value. Respondents were asked to imagine they were looking for a programme to help a loved one living with dementia, and that an informal carer could attend with them. Each respondent saw eight choice tasks. Each task showed two programmes, A and B, described by seven features.</p>
+          <p>Respondents first chose the better of the two programmes, then answered: "If you have the option not to choose either of these programs, will your choice remain the same?" This dual-response format <button type="button" class="info" data-term="dual-response" aria-expanded="false" aria-label="What dual response means"><span aria-hidden="true">i</span></button> records both which programme is preferred and whether it would be used at all.</p>
           <p>The attributes and levels were based on a review of studies of dementia support programmes and refined through expert consultation. The 24 choice tasks came from a D-efficient design created in Ngene and were split into three blocks of eight; the order of tasks was randomised. Combinations that do not occur in practice were excluded, for example group programmes held in a person's home. The survey was piloted with 29 respondents before the main data collection.</p>
         </div>
         <div class="table-scroll">
@@ -120,33 +122,28 @@
       <section id="results">
         <h2>Main results</h2>
         <h3>What each feature is worth</h3>
-        <div class="prose"><p>Willingness to pay is the change in cost per session that would leave people equally happy with the programme after a change in one feature, compared with the reference level. Positive values are features people would pay for; negative values are features they would need to be compensated for.</p></div>
+        <div class="prose"><p>Willingness to pay <button type="button" class="info" data-term="wtp" aria-expanded="false" aria-label="What willingness to pay means"><span aria-hidden="true">i</span></button> is the change in cost per session that would leave people equally happy with the programme after a change in one feature, compared with the starting level <button type="button" class="info" data-term="reference-level" aria-expanded="false" aria-label="What the starting level means"><span aria-hidden="true">i</span></button>. Positive values are features people would pay for; negative values are features they would need to be compensated for. Values are from the mixed logit model, the same model the tools use.</p></div>
         <div id="wtp-chart"></div>
         <div class="table-scroll" id="wtp-table"></div>
-        <h3>Relative importance</h3>
+        <h3>Relative importance <button type="button" class="info" data-term="importance" aria-expanded="false" aria-label="What relative importance means"><span aria-hidden="true">i</span></button></h3>
         <div id="ri-chart"></div>
         <div class="prose" id="results-text"></div>
       </section>
 
       <section id="methods" class="prose">
-        <h2>Models used on this website</h2>
-        <p>All calculations run in your browser from one file of model estimates, <a href="data/model.json">model.json</a>, exported from the MATLAB analysis. For each model the file contains the estimates and 1,000 draws from their sampling distribution (Krinsky and Robb method), which are used for the 95% intervals.</p>
-        <ul>
-          <li><strong>Multinomial logit.</strong> The benchmark model of the choice between Program A, Program B and neither. Used for willingness to pay, relative importance and the simpler take-up figures.</li>
-          <li><strong>Mixed logit with a random constant for choosing neither.</strong> The main model for take-up. It lets people differ in how much they value each feature and in their general willingness to use any programme. Population take-up is averaged over 1,000 simulated people.</li>
-          <li><strong>Piecewise cost model.</strong> Allows the effect of cost to differ between A$0 and A$5, A$5 and A$20, and A$20 and A$50.</li>
-          <li><strong>Sequential dual-response model.</strong> Models the two answers to each task separately; used for the share who would keep a programme once chosen.</li>
-          <li><strong>Lived-experience model.</strong> Lets the value of carer inclusion depend on caring responsibilities, a close family member with dementia and daily or weekly contact.</li>
-          <li><strong>Latent class model.</strong> Divides respondents into two groups with different preferences.</li>
-        </ul>
-        <p>Take-up is the probability of choosing a programme rather than no programme when it is offered on its own. Price elasticity is the percentage change in take-up for a 1% increase in the fee.</p>
+        <h2>How the website calculates its results</h2>
+        <p>Every result on the tool pages comes from one model, the mixed logit <button type="button" class="info" data-term="model" aria-expanded="false" aria-label="What the mixed logit means"><span aria-hidden="true">i</span></button>. It lets people differ in how much they value each feature and, above all, in how willing they are to use any programme at all. It fitted the survey answers far better than models that treat everyone alike (log-likelihood -1,908 against -2,153 for the multinomial logit <button type="button" class="info" data-term="mnl" aria-expanded="false" aria-label="What the multinomial logit means"><span aria-hidden="true">i</span></button>), so the tools use it alone rather than switching between models.</p>
+        <p>All calculations run in your browser from one file of model estimates, <a href="data/model.json">model.json</a>, exported from the MATLAB analysis. The population is represented by 1,000 simulated people <button type="button" class="info" data-term="simulated-people" aria-expanded="false" aria-label="What simulated people means"><span aria-hidden="true">i</span></button>; take-up and value are averages over them. The 95% intervals come from 1,000 redrawn sets of estimates <button type="button" class="info" data-term="krinsky-robb" aria-expanded="false" aria-label="What the Krinsky-Robb method means"><span aria-hidden="true">i</span></button>.</p>
+        <h3>Supporting analyses <button type="button" class="info" data-term="supporting-analyses" aria-expanded="false" aria-label="What supporting analyses means"><span aria-hidden="true">i</span></button></h3>
+        <p>Four further models answer questions the main model cannot. Their results are reported here and in the paper, but the tools do not use them.</p>
+        <div id="supporting"></div>
       </section>
 
       <section id="benefits" class="prose">
         <h2>How benefits are measured</h2>
-        <p>The benefit of a programme is the money value people place on having it available. In a choice model this is the expected consumer surplus, calculated from the "logsum" of the choice probabilities and divided by the cost coefficient (Small and Rosen, 1981). It is measured per person offered the programme and per session, compared with having no programme, and is net of any fee. Adding the fees that participants pay gives their total willingness to pay.</p>
+        <p>The benefit of a programme is the money value people place on having it available <button type="button" class="info" data-term="value" aria-expanded="false" aria-label="What value to families means"><span aria-hidden="true">i</span></button>. In a choice model this is the expected consumer surplus, calculated from the "logsum" of the choice probabilities and divided by the cost coefficient (Small and Rosen, 1981). It is measured per person offered the programme and per session, compared with having no programme, and is net of any fee. Adding the fees that participants pay gives their total willingness to pay.</p>
         <p>On the <a href="value.html">Benefits and costs</a> page, the benefit to participants over a year is the consumer surplus multiplied by the number of people offered and the number of sessions, plus the fees paid. The cost is the provider cost per participant per session, entered by the user, multiplied by the number of participants and sessions. Fees are a transfer from participants to the provider, so they do not change the net benefit to society.</p>
-        <p>Values from stated choices can be higher than what people would actually pay, which is known as hypothetical bias. The page lets users count only part of the stated benefit to test how sensitive the conclusion is. The benefit measure covers what respondents valued in the programme; it does not separately count health outcomes, effects on carers' paid work, or savings to other services.</p>
+        <p>Values from stated choices can be higher than what people would actually pay, which is known as hypothetical bias <button type="button" class="info" data-term="hypothetical-bias" aria-expanded="false" aria-label="What hypothetical bias means"><span aria-hidden="true">i</span></button>. The page lets users count only part of the stated benefit to test how sensitive the conclusion is. The benefit measure covers what respondents valued in the programme; it does not separately count health outcomes, effects on carers' paid work, or savings to other services.</p>
         <p class="small">Small KA, Rosen HS. Applied welfare economics with discrete choice models. <em>Econometrica</em> 1981;49(1):105-130. <a href="https://doi.org/10.2307/1911129">https://doi.org/10.2307/1911129</a></p>
       </section>
 
@@ -161,11 +158,29 @@
         </ul>
       </section>
 
-      <section id="check">
-        <h2>Check against the published analysis</h2>
-        <div class="prose"><p>Each time this page loads, it recalculates the eight example programmes from the published analysis and compares the results with the values from MATLAB. Small differences in the mixed logit column come from simulation.</p></div>
-        <div class="table-scroll" id="check-table"></div>
+      <section id="improve" class="prose">
+        <h2>Where the tool and the evidence need to improve</h2>
+        <p>This is a first version. These are the gaps we know about and plan to address. If you use the tool and see something else that should change, please <a href="mailto:mesfin.genie@newcastle.edu.au?subject=Dementia%20Support%20Choices%20feedback">tell us</a>.</p>
+        <ul>
+          <li><strong>Voices of people living with dementia and carers.</strong> Most respondents were members of the public choosing for a hypothetical loved one. The next stage will test the tool and its wording with people living with dementia, carers and providers.</li>
+          <li><strong>Provider costs.</strong> The study did not measure running costs, so the benefit-cost page relies on figures users enter. Published unit costs for Australian programmes would make the verdicts more useful.</li>
+          <li><strong>Attendance, not only choice.</strong> Take-up is stated acceptance. Linking predictions to enrolment and attendance data from real services would show how far stated choices carry through.</li>
+          <li><strong>Diverse communities.</strong> Aboriginal and Torres Strait Islander people and people from culturally and linguistically diverse backgrounds were not sampled in numbers large enough to report separately.</li>
+          <li><strong>Regional and remote areas.</strong> Online programmes were always delivered at home in the study, so the separate effects of travel and online delivery cannot be fully told apart.</li>
+          <li><strong>Longer horizons.</strong> The benefit-cost analysis covers one year and does not count health effects, effects on carers' paid work or savings to other services.</li>
+          <li><strong>The tool itself.</strong> A simpler version for families with fewer numbers, translations into community languages, and a spreadsheet download of results are planned.</li>
+        </ul>
       </section>
+
+      <div class="folds">
+      <details class="fold" id="check">
+        <summary><h2>Check against the published analysis</h2><span class="fold-hint">Each time this page loads, it recalculates the example programmes and compares them with MATLAB.</span></summary>
+        <div class="fold-body">
+          <div class="prose"><p>The website recalculates the eight example programmes from the published analysis and compares the results with the values from MATLAB. The mixed logit column is the one the tools use; the other two columns check supporting models. Small differences in the mixed logit column come from simulation.</p></div>
+          <div class="table-scroll" id="check-table"></div>
+        </div>
+      </details>
+      </div>
 
       <section id="cite" class="prose">
         <h2>Downloads and how to cite</h2>
@@ -213,6 +228,7 @@
           <li><a href="value.html">Benefits and costs</a></li>
           <li><a href="fees.html">Fees and access</a></li>
           <li><a href="research.html">The research</a></li>
+          <li><a href="glossary.html">Glossary</a></li>
           <li><a href="accessibility.html">Accessibility</a></li>
           <li><a href="privacy.html">Privacy</a></li>
         </ul>

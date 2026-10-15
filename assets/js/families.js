@@ -1,4 +1,4 @@
-import { boot, el, money, pct, toast, progress } from './common.js';
+import { boot, el, money, pct, toast, progress, setContext } from './common.js';
 import { barChart } from './charts.js';
 
 const IMPORTANCE = [
@@ -97,14 +97,14 @@ function readForm(form) {
   }));
 }
 
-function renderSummary(target, answers, engine) {
+function renderSummary(target, answers, engine, quiet) {
   const order = { 'a lot': 0, 'a little': 1, 'not much': 2, null: 3 };
   const sorted = answers.slice().sort((a, b) => order[a.importance] - order[b.importance]);
   const answered = answers.filter((a) => a.prefs.length || a.importance);
   target.replaceChildren();
   if (!answered.length) {
     target.append(el('p', { class: 'warning' }, 'Answer at least one question to see a summary.'));
-    target.focus();
+    if (!quiet) target.focus();
     return;
   }
   const optionLabel = (q, v) => (q.options.find((o) => o[0] === v) || [v, v])[1];
@@ -145,11 +145,11 @@ function renderSummary(target, answers, engine) {
 
   // Short notes linking answers to study findings
   const notes = [];
-  const w = engine.wtp('mnl');
+  const w = engine.wtp('mxlr');
   const get = (p) => w.find((x) => engine.level(x.attribute, x.level).param === p);
   const carerAns = answers.find((a) => a.key === 'carer');
   if (carerAns.prefs.includes('yes')) {
-    notes.push(`You are not alone in wanting the carer included. It was the feature people in our study valued most, at about ${money(get('caregiver: Yes').point, 1)} per session, and even more among people in regular contact with someone living with dementia.`);
+    notes.push(`You are not alone in wanting the carer included. It was one of the features people in our study valued most, at about ${money(get('caregiver: Yes').point)} per session, and even more among people in regular contact with someone living with dementia.`);
   }
   const dist = answers.find((a) => a.key === 'distance');
   if (dist.prefs.includes('home') || dist.prefs.includes('local')) {
@@ -170,7 +170,7 @@ function renderSummary(target, answers, engine) {
     el('a', { class: 'btn secondary', href: '#help' }, 'See where to get help'));
   target.append(btns);
   target.setAttribute('tabindex', '-1');
-  target.focus();
+  if (!quiet) target.focus();
 }
 
 boot((engine) => {
@@ -200,7 +200,12 @@ boot((engine) => {
       }
     }
   };
-  form.addEventListener('change', refreshCount);
+  let shown = false;
+  form.addEventListener('change', () => {
+    refreshCount();
+    // Once the summary is showing, keep it in step with the answers
+    if (shown) { renderSummary(summary, readForm(form), engine, true); wireSummary(); }
+  });
   refreshCount();
   form.addEventListener('submit', (ev) => {
     ev.preventDefault();
@@ -210,11 +215,17 @@ boot((engine) => {
       toast({ level: 'red', title: 'No answers yet', message: 'Answer at least one question to see a summary.' });
       return;
     }
+    shown = true;
+    wireSummary();
     steps.mark('summary');
     toast({ level: c.full === QUESTIONS.length ? 'green' : 'amber', title: 'Your summary is ready',
       message: c.full === QUESTIONS.length ? 'It lists your priorities and questions to ask providers.' : `You answered ${c.full} of ${QUESTIONS.length} questions fully. The summary uses what you gave; you can add more answers and show it again.`,
       action: { label: 'Next: print or save it', onClick: () => document.getElementById('print-summary').focus() } });
-    document.getElementById('print-summary').addEventListener('click', () => {
+  });
+  function wireSummary() {
+    const pb = document.getElementById('print-summary');
+    if (!pb) return;
+    pb.addEventListener('click', () => {
       steps.mark('keep');
       toast({ level: 'info', title: 'Opening the print window', message: 'Choose "Save as PDF" as the printer to keep a copy for appointments.' });
       setTimeout(() => window.print(), 300);
@@ -228,24 +239,30 @@ boot((engine) => {
         toast({ level: 'amber', title: 'Copying is not available in this browser', message: 'Use "Print or save as PDF" instead.' });
       }
     });
-  });
+  }
   form.addEventListener('reset', () => {
-    summary.replaceChildren(); announcedAll = false;
+    summary.replaceChildren(); announcedAll = false; shown = false;
     setTimeout(refreshCount, 0);
     toast({ level: 'info', title: 'Your answers have been cleared', message: 'Nothing was saved, so there is nothing else to delete.' });
   });
   document.querySelectorAll('#help a[href^="tel:"], #help a[href^="http"]').forEach((a) => a.addEventListener('click', () => steps.mark('help')));
 
   // Relative importance from the study
-  const ri = engine.relativeImportance('mnl');
+  const ri = engine.relativeImportance('mxlr');
   const names = { type: 'Type of programme', carer: 'Support for the carer', mode: 'How people take part', frequency: 'How often', duration: 'Length of each session', distance: 'Travel', cost: 'Cost per session' };
   barChart(document.getElementById('importance-chart'),
     ri.map((r) => ({ label: names[r.key], point: r.point, lo: r.ci[0], hi: r.ci[1], color: '#2a6bc4' })),
     { format: (v) => pct(v), title: 'Relative importance of programme features in the study' });
 
+  const byRank = ri.slice().sort((a, b) => b.point - a.point);
+  const payNames = { 'caregiver: Yes': 'Including the carer', 'type: Psychological counselling': 'Counselling', 'frequency: Weekly': 'Weekly rather than monthly sessions', 'type: Community engagement': 'Community groups', 'frequency: Daily': 'Daily rather than monthly sessions' };
+  const topPay = engine.wtp('mxlr').filter((r) => r.point > 0).sort((a, b) => b.point - a.point).slice(0, 3)
+    .map((r) => ({ ...r, label: payNames[engine.level(r.attribute, r.level).param] || r.label }));
   const carerOnly = engine.carerValueByProfile({});
   const frequent = engine.carerValueByProfile({ frequentContact: true });
   document.getElementById('others-text').replaceChildren(
-    el('p', {}, `Cost made the biggest difference across the range tested, from free to $50 per session, followed by the type of programme and the travel involved. Of the features people would pay for, including the carer was valued most.`),
-    el('p', {}, `People who were in daily or weekly contact with someone living with dementia valued carer inclusion at about ${money(frequent.point)} per session, compared with about ${money(carerOnly.point)} for people without that experience.`));
+    el('p', {}, `${names[byRank[0].key]} made the biggest difference across the range tested (cost ran from free to A$50 per session), followed by ${names[byRank[1].key].toLowerCase()} and ${names[byRank[2].key].toLowerCase()}. The features people would pay most for were ${topPay.map((r) => `${r.label.toLowerCase()} (about ${money(r.point)} per session)`).join(', ')}.`),
+    el('p', {}, `A supporting analysis found that people in daily or weekly contact with someone living with dementia valued carer inclusion at about ${money(frequent.point)} per session, compared with about ${money(carerOnly.point)} for people without that experience.`));
+  const top3 = byRank.slice(0, 3);
+  setContext('importance', () => `the three features that mattered most were ${top3.map((r) => `${names[r.key].toLowerCase()} (${pct(r.point)})`).join(', ')}.`);
 });
