@@ -16,6 +16,7 @@ function initTextSize() {
   document.querySelectorAll('.textsize button').forEach((b) => b.addEventListener('click', () => {
     applyTextSize(b.dataset.size);
     try { localStorage.setItem(TEXT_KEY, b.dataset.size); } catch (e) { /* storage unavailable */ }
+    toast({ level: 'info', title: `Text size: ${{ standard: 'standard', large: 'larger', largest: 'largest' }[b.dataset.size]}`, message: 'This setting is remembered on this device for every page.', duration: 5000 });
   }));
 }
 
@@ -125,4 +126,129 @@ export function fillSelect(select, engine, design, key) {
 
 export function feasibleTemplates(engine) {
   return engine.scenarios.filter((s) => engine.isFeasible(s.design));
+}
+
+// ------------------------------------------------------------ notifications
+// Messages appear at the bottom right. Levels follow a traffic light:
+// green = good result or action done, amber = check this, red = problem or worse result,
+// info = neutral confirmation. Each carries a word label so colour is never the only cue.
+const LEVELS = {
+  green: { label: 'Good', icon: '<circle cx="10" cy="10" r="9"/><path d="M5.5 10.3l3 3 6-6.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' },
+  amber: { label: 'Check', icon: '<path d="M10 1.5l9 16.5H1z"/><path d="M10 7v5" stroke="#1f2329" stroke-width="2.2" stroke-linecap="round"/><circle cx="10" cy="15" r="1.3" fill="#1f2329"/>' },
+  red: { label: 'Caution', icon: '<circle cx="10" cy="10" r="9"/><path d="M6.5 6.5l7 7M13.5 6.5l-7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>' },
+  info: { label: 'Done', icon: '<circle cx="10" cy="10" r="9"/><path d="M10 8.6v5.6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="10" cy="5.6" r="1.3" fill="#fff"/>' },
+};
+let toastRegion;
+function region() {
+  if (toastRegion) return toastRegion;
+  toastRegion = el('div', { class: 'toasts', 'aria-live': 'polite', 'aria-relevant': 'additions' });
+  document.body.append(toastRegion);
+  return toastRegion;
+}
+
+/**
+ * toast({ level, title, message, action: { label, href | onClick }, duration })
+ */
+export function toast({ level = 'info', title, message, action, duration = 9000 }) {
+  const box = region();
+  const L = LEVELS[level] || LEVELS.info;
+  const t = el('div', { class: `toast toast-${level}`, role: level === 'red' ? 'alert' : 'status' });
+  const icon = el('span', { class: 'toast-icon', 'aria-hidden': 'true', html: `<svg viewBox="0 0 20 20">${L.icon}</svg>` });
+  const body = el('div', { class: 'toast-body' },
+    el('p', { class: 'toast-title' }, el('span', { class: 'toast-level' }, `${L.label}: `), title),
+    message ? el('p', { class: 'toast-msg' }, message) : null);
+  if (action) {
+    const a = action.href
+      ? el('a', { class: 'toast-action', href: action.href }, action.label)
+      : el('button', { type: 'button', class: 'toast-action', onclick: () => { action.onClick(); close(); } }, action.label);
+    body.append(a);
+  }
+  const x = el('button', { type: 'button', class: 'toast-close', 'aria-label': 'Close message', html: '&times;' });
+  t.append(icon, body, x);
+  let timer;
+  const close = () => { clearTimeout(timer); t.classList.add('leaving'); setTimeout(() => t.remove(), 200); };
+  const arm = () => { clearTimeout(timer); if (duration) timer = setTimeout(close, duration); };
+  x.addEventListener('click', close);
+  t.addEventListener('mouseenter', () => clearTimeout(timer));
+  t.addEventListener('mouseleave', arm);
+  t.addEventListener('focusin', () => clearTimeout(timer));
+  t.addEventListener('focusout', arm);
+  box.append(t);
+  while (box.children.length > 3) box.firstElementChild.remove();
+  arm();
+  return t;
+}
+
+// Traffic light for a change in take-up (difference in probability)
+export function changeLevel(delta, small = 0.005) {
+  if (delta > small) return 'green';
+  if (delta < -small) return 'red';
+  return 'amber';
+}
+export const signed = (x, d = 0) => `${x > 0 ? '+' : x < 0 ? '-' : ''}${Math.abs(x).toFixed(d)}`;
+
+// ------------------------------------------------------------ progress steps
+// steps: [{ id, label, href }]; mark(id) ticks a step and updates the "next" hint
+export function progress(container, steps) {
+  const done = new Set();
+  const list = el('ol', { class: 'steps' });
+  const items = steps.map((s, i) => {
+    const li = el('li', { 'data-step': s.id }, el('span', { class: 'step-n', 'aria-hidden': 'true' }, String(i + 1)),
+      s.href ? el('a', { href: s.href }, s.label) : el('span', {}, s.label),
+      el('span', { class: 'visually-hidden step-state' }, ' (not done yet)'));
+    list.append(li);
+    return li;
+  });
+  const next = el('p', { class: 'step-next' });
+  container.replaceChildren(el('h2', { class: 'steps-title' }, 'Your progress'), list, next);
+  const refresh = () => {
+    let first = null;
+    steps.forEach((s, i) => {
+      const isDone = done.has(s.id);
+      items[i].classList.toggle('done', isDone);
+      items[i].querySelector('.step-state').textContent = isDone ? ' (done)' : ' (not done yet)';
+      if (!isDone && !first) first = s;
+      items[i].classList.toggle('current', !isDone && first === s);
+    });
+    next.replaceChildren(first ? el('span', {}, 'Next: ', first.href ? el('a', { href: first.href }, first.label) : first.label)
+      : el('span', {}, 'All steps done. You can print or share your results.'));
+  };
+  refresh();
+  return {
+    mark(id) { const was = done.has(id); done.add(id); refresh(); return !was; },
+    nextLabel() { const s = steps.find((x) => !done.has(x.id)); return s ? s : null; },
+  };
+}
+
+// ------------------------------------------------------------ sharing a design in the address
+const KEYS = ['type', 'carer', 'mode', 'frequency', 'duration', 'distance'];
+export function designFromQuery(engine, fallback) {
+  const q = new URLSearchParams(location.search);
+  const d = { ...fallback };
+  let any = false;
+  for (const k of KEYS) {
+    const v = q.get(k);
+    if (v && engine.attribute(k).levels.some((l) => l.key === v)) { d[k] = v; any = true; }
+  }
+  const p = q.get('price');
+  if (p != null && !Number.isNaN(+p)) { d.price = Math.max(0, Math.min(50, Math.round(+p))); any = true; }
+  return any && engine.isFeasible(d) ? d : null;
+}
+export function designQuery(d) {
+  const q = new URLSearchParams();
+  for (const k of KEYS) q.set(k, d[k]);
+  q.set('price', String(d.price));
+  return `?${q.toString()}`;
+}
+export function writeQuery(d) {
+  try { history.replaceState(null, '', designQuery(d) + location.hash); } catch (e) { /* ignore */ }
+}
+export async function copyLink() {
+  const url = location.href;
+  try {
+    await navigator.clipboard.writeText(url);
+    toast({ level: 'green', title: 'Link copied', message: 'Paste it into an email or document. It opens this page with the same programme.' });
+  } catch (e) {
+    toast({ level: 'amber', title: 'Copy the link from the address bar', message: 'Your browser did not allow automatic copying. The address bar already contains this programme.' });
+  }
 }

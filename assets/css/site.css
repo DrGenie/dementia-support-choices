@@ -299,3 +299,67 @@ footer.site .legal { grid-column: 1 / -1; border-top: 1px solid rgba(255, 255, 2
   table, .chart, .readout { break-inside: avoid; }
 }
 .print-only { display: none; }
+
+/* ---------------------------------------------------------------- notifications */
+.toasts { position: fixed; right: 1rem; bottom: 1rem; z-index: 50; display: flex; flex-direction: column; gap: 0.6rem; width: min(26rem, calc(100vw - 2rem)); }
+.toast {
+  display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) 1.8rem; gap: 0.7rem; align-items: start;
+  background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-left: 8px solid var(--blue);
+  border-radius: var(--radius); padding: 0.8rem 0.6rem 0.8rem 0.8rem; box-shadow: 0 6px 20px rgba(31, 35, 41, 0.22);
+  font-size: 1rem; line-height: 1.45; animation: toast-in 0.18s ease-out;
+}
+.toast.leaving { opacity: 0; transform: translateY(6px); transition: opacity 0.2s, transform 0.2s; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.toast-icon svg { width: 1.5rem; height: 1.5rem; display: block; }
+.toast-green { border-left-color: #1e7a4f; } .toast-green .toast-icon svg { fill: #1e7a4f; }
+.toast-amber { border-left-color: #e0a100; } .toast-amber .toast-icon svg { fill: #f2b705; }
+.toast-red { border-left-color: #b3261e; } .toast-red .toast-icon svg { fill: #b3261e; }
+.toast-info { border-left-color: var(--blue); } .toast-info .toast-icon svg { fill: var(--blue); }
+.toast p { margin: 0; }
+.toast-title { font-weight: 700; }
+.toast-level { font-weight: 700; }
+.toast-green .toast-level { color: #1e7a4f; } .toast-amber .toast-level { color: #8a5a00; } .toast-red .toast-level { color: #b3261e; } .toast-info .toast-level { color: var(--blue); }
+.toast-msg { color: var(--ink-2); margin-top: 0.15rem !important; }
+.toast-action { display: inline-block; margin-top: 0.45rem; font: inherit; font-weight: 700; color: var(--blue); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+.toast-close { font: inherit; font-size: 1.5rem; line-height: 1; background: none; border: 0; color: var(--ink-2); cursor: pointer; padding: 0 0.2rem; border-radius: var(--radius); }
+.toast-close:hover { color: var(--ink); background: var(--wash); }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } .toast.leaving { transition: none; } }
+@media print { .toasts { display: none; } }
+
+/* ---------------------------------------------------------------- traffic light badges */
+.light { display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700; padding: 0.25rem 0.7rem 0.25rem 0.5rem; border-radius: 999px; font-size: 0.95rem; border: 2px solid; }
+.light::before { content: ""; width: 0.85rem; height: 0.85rem; border-radius: 50%; }
+.light-green { color: #155f3c; border-color: #1e7a4f; background: #e7f4ec; } .light-green::before { background: #1e7a4f; }
+.light-amber { color: #6e4800; border-color: #e0a100; background: #fdf3d9; } .light-amber::before { background: #f2b705; }
+.light-red { color: #8c1d17; border-color: #b3261e; background: #fbe9e7; } .light-red::before { background: #b3261e; }
+.verdict { border: 2px solid var(--line); border-left-width: 10px; border-radius: var(--radius); padding: 1.1rem 1.3rem; margin: 0 0 1.2rem; }
+.verdict h3 { margin: 0.5rem 0 0.4rem; }
+.verdict p:last-child { margin-bottom: 0; }
+.verdict-green { border-color: #1e7a4f; background: #f3faf6; }
+.verdict-amber { border-color: #e0a100; background: #fffaeb; }
+.verdict-red { border-color: #b3261e; background: #fdf3f2; }
+
+/* ---------------------------------------------------------------- quick actions */
+.quick { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.6rem 0 1.2rem; }
+.quick button {
+  font: inherit; font-size: 0.98rem; font-weight: 700; color: var(--plum); background: var(--paper);
+  border: 2px solid var(--plum-2); border-radius: 999px; padding: 0.35rem 0.9rem; cursor: pointer;
+}
+.quick button:hover { background: var(--wash); }
+.quick button:disabled { opacity: 0.45; cursor: not-allowed; }
+.quickbtns { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+.quickbtns button { font: inherit; font-size: 0.95rem; border: 2px solid var(--line); background: var(--paper); border-radius: var(--radius); padding: 0.25rem 0.7rem; cursor: pointer; }
+.quickbtns button[aria-pressed="true"] { border-color: var(--plum); background: var(--wash); font-weight: 700; }
+
+/* ---------------------------------------------------------------- progress steps */
+.progress { border: 1px solid var(--line); border-radius: var(--radius); padding: 0.9rem 1.1rem; margin: 1.4rem 0 0; background: var(--paper); }
+.steps-title { font-family: var(--body); font-size: 1.05rem !important; color: var(--ink); margin: 0 0 0.5rem !important; }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; }
+.steps li { margin: 0; display: flex; align-items: center; gap: 0.45rem; color: var(--ink-2); }
+.step-n { display: inline-grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 50%; border: 2px solid #9aa1ad; font-weight: 700; font-size: 0.9rem; color: var(--ink-2); background: var(--paper); }
+.steps li.current .step-n { border-color: var(--plum); color: var(--plum); }
+.steps li.current { color: var(--ink); font-weight: 700; }
+.steps li.done .step-n { background: #1e7a4f; border-color: #1e7a4f; color: transparent; position: relative; }
+.steps li.done .step-n::after { content: ""; position: absolute; width: 0.45rem; height: 0.8rem; border: solid #fff; border-width: 0 3px 3px 0; transform: rotate(45deg); top: 0.2rem; left: 0.55rem; }
+.step-next { margin: 0.6rem 0 0; font-size: 0.98rem; }
+@media print { .progress, .quick { display: none; } }

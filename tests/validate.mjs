@@ -42,5 +42,15 @@ check(Math.abs(sub.mnl.diversionNone - 0.392) < 0.005 && Math.abs(sub.mxl.divers
 const reach = e.reach({ ...ref, price: 0 });
 check(Math.abs(reach.neverShare - 0.224) < 0.02, `never take up when free ${(100 * reach.neverShare).toFixed(1)}%`);
 
+// Consumer surplus per person offered per session (MATLAB econ_welfare_scenarios.csv / welfare_scenarios.csv)
+const S = (id) => e.scenarios.find((x) => x.id === id).design;
+const cs1 = e.valueDraws('mnl', { ...S('S1'), price: 0 }).point.CS;
+const cs2 = e.valueDraws('mnl', S('S2')).point.CS;
+check(Math.abs(cs1 - 74.64) < 0.2 && Math.abs(cs2 - 66.76) < 0.2, `MNL consumer surplus S1 free ${cs1.toFixed(2)} (MATLAB 74.64), S2 at A$5 ${cs2.toFixed(2)} (MATLAB 66.76)`);
+const csm = e.valueDraws('mxlr', S('S1'), 10).point.CS;
+check(Math.abs(csm - 100.67) < 3, `MXL-R consumer surplus S1 ${csm.toFixed(1)} (MATLAB 100.67, simulation error expected)`);
+const b = Engine.bca(e.valueDraws('mnl', S('S1')), S('S1'), 52, { offered: 1000, providerCost: 50 });
+check(Math.abs(b.breakEven - cs1 / e.uptakeFixed('mnl', S('S1')).point) < 1e-6, `break-even provider cost ${b.breakEven.toFixed(2)} per participant session`);
+
 if (failures) { console.error(`\n${failures} check(s) failed`); process.exit(1); }
 console.log('\nAll checks passed');

@@ -15,6 +15,7 @@ const H1 = {
 };
 
 const logistic = (x) => 1 / (1 + Math.exp(-x));
+const softplus = (x) => (x > 30 ? x : Math.log1p(Math.exp(x)));
 
 export function quantile(sorted, q) {
   if (!sorted.length) return NaN;
@@ -374,6 +375,108 @@ export class Engine {
     };
     rec(0, {});
     return out;
+  }
+
+
+  // ------------------------------------------------------------ benefits
+  // Expected consumer surplus per person offered, per session (A$), from the logsum
+  // (Small and Rosen 1981): the money value of having the programme available
+  // compared with no programme, net of the fee. Returned with take-up P for each
+  // parameter draw so that any benefit-cost measure can be given an interval.
+  valueDraws(modelName, design, nDraws = 200) {
+    if (modelName === 'mxlr') {
+      const { b } = this.mxl();
+      const one = (mean, sd) => {
+        const d = this.mxlBase(design, mean, sd);
+        let P = 0, CS = 0;
+        for (let i = 0; i < d.base.length; i++) {
+          const x = d.base[i] + d.bc * design.price;
+          P += 1 / (1 + Math.exp(-x)); CS += softplus(x);
+        }
+        return { P: P / d.base.length, CS: CS / d.base.length / -d.bc };
+      };
+      const point = one(b.mean, b.sd);
+      const step = Math.max(1, Math.floor(b.draws_mean.length / nDraws));
+      const draws = [];
+      for (let r = 0; r < b.draws_mean.length; r += step) draws.push(one(b.draws_mean[r], b.draws_sd[r]));
+      return { point, draws };
+    }
+    const block = this.m.models[modelName];
+    const c = this.idx[modelName].get(COST);
+    const one = (th) => {
+      const x = this.utility(modelName, th, design) - this.asc(modelName, th);
+      return { P: logistic(x), CS: softplus(x) / -th[c] };
+    };
+    return { point: one(block.theta), draws: block.draws.map(one) };
+  }
+
+  /**
+   * Benefit-cost analysis for one programme.
+   * opts: { offered: people offered, providerCost: A$ per participant per session,
+   *         benefitShare: share of stated benefit counted (0-1), years: 1 }
+   * Gross benefit to participants = consumer surplus + fees paid (their willingness to pay),
+   * multiplied by the share of stated value counted. Net benefit = gross benefit - provider cost;
+   * fees are a transfer from participants to the provider and do not enter separately.
+   */
+  static bca(value, design, sessions, opts) {
+    const N = opts.offered, c = opts.providerCost, k = opts.benefitShare ?? 1;
+    const f = ({ P, CS }) => {
+      const participants = N * P;
+      const fees = participants * sessions * design.price;
+      const benefit = k * (N * sessions * CS + fees);
+      const cost = c == null ? null : participants * sessions * c;
+      return {
+        participants, fees, benefit, cost,
+        net: cost == null ? null : benefit - cost,
+        bcr: cost ? benefit / cost : null,
+        breakEven: P > 0 ? k * (CS / P + design.price) : 0,
+        benefitPerParticipantSession: P > 0 ? k * (CS / P + design.price) : 0,
+        surplusPerOfferedSession: k * CS,
+      };
+    };
+    const point = f(value.point);
+    const d = value.draws.map(f);
+    const ci = {};
+    for (const key of Object.keys(point)) {
+      if (point[key] == null) continue;
+      ci[key] = interval(d.map((x) => x[key]));
+    }
+    // probability that net benefit is positive
+    const pPositive = point.net == null ? null : d.filter((x) => x.net > 0).length / d.length;
+    return { ...point, ci, pPositive, draws: d };
+  }
+
+
+
+  // valueDraws over a grid of fees, reusing the simulated people for the mixed logit
+  valueCurve(modelName, design, prices, nDraws = 120) {
+    if (modelName !== 'mxlr') return prices.map((p) => this.valueDraws(modelName, { ...design, price: p }));
+    const { b } = this.mxl();
+    const step = Math.max(1, Math.floor(b.draws_mean.length / nDraws));
+    const sets = [this.mxlBase(design, b.mean, b.sd)];
+    for (let r = 0; r < b.draws_mean.length; r += step) sets.push(this.mxlBase(design, b.draws_mean[r], b.draws_sd[r]));
+    const val = (d, p) => {
+      let P = 0, CS = 0;
+      for (let i = 0; i < d.base.length; i++) { const x = d.base[i] + d.bc * p; P += 1 / (1 + Math.exp(-x)); CS += softplus(x); }
+      return { P: P / d.base.length, CS: CS / d.base.length / -d.bc };
+    };
+    return prices.map((p) => ({ point: val(sets[0], p), draws: sets.slice(1).map((d) => val(d, p)) }));
+  }
+
+  // Where a design's take-up sits among all designs allowed by the study (four tested prices)
+  rating(design) {
+    if (!this._ratingPool) {
+      const pool = [];
+      for (const p of this.m.cost.levels) for (const d of this.allFeasibleDesigns(p)) pool.push(this.uptakeMxl(d, 0).point);
+      this._ratingPool = Float64Array.from(pool).sort();
+    }
+    const u = this.uptakeMxl(design, 0).point;
+    const pool = this._ratingPool;
+    let below = 0;
+    while (below < pool.length && pool[below] < u) below++;
+    const percentile = below / pool.length;
+    const level = percentile >= 2 / 3 ? 'green' : percentile >= 1 / 3 ? 'amber' : 'red';
+    return { percentile, level, best: pool[pool.length - 1], worst: pool[0], median: quantile(pool, 0.5) };
   }
 
   // Check that this engine reproduces the MATLAB results stored in the export

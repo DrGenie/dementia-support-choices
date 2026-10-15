@@ -1,4 +1,4 @@
-import { boot, el, money, pct } from './common.js';
+import { boot, el, money, pct, toast, progress } from './common.js';
 import { barChart } from './charts.js';
 
 const IMPORTANCE = [
@@ -165,7 +165,9 @@ function renderSummary(target, answers, engine) {
   }
   target.append(el('p', {}, 'When you are ready, the National Dementia Helpline on 1800 100 500 can help you find programmes near you.'));
   const btns = el('div', { class: 'btnrow' },
-    el('button', { type: 'button', class: 'btn', onclick: () => window.print() }, 'Print or save as PDF'));
+    el('button', { type: 'button', class: 'btn', id: 'print-summary' }, 'Print or save as PDF'),
+    el('button', { type: 'button', class: 'btn secondary', id: 'copy-summary' }, 'Copy the summary text'),
+    el('a', { class: 'btn secondary', href: '#help' }, 'See where to get help'));
   target.append(btns);
   target.setAttribute('tabindex', '-1');
   target.focus();
@@ -175,8 +177,64 @@ boot((engine) => {
   const form = document.getElementById('values-form');
   buildForm(document.getElementById('values-fields'));
   const summary = document.getElementById('summary');
-  form.addEventListener('submit', (ev) => { ev.preventDefault(); renderSummary(summary, readForm(form), engine); });
-  form.addEventListener('reset', () => { summary.replaceChildren(); });
+  const steps = progress(document.getElementById('progress'), [
+    { id: 'answer', label: 'Answer the questions', href: '#matters' },
+    { id: 'summary', label: 'Show your summary', href: '#values-form' },
+    { id: 'keep', label: 'Print or copy your summary', href: '#summary' },
+    { id: 'help', label: 'Contact a service', href: '#help' },
+  ]);
+  const answered = document.getElementById('answered');
+  const countAnswered = () => {
+    const a = readForm(form);
+    return { full: a.filter((x) => x.prefs.length && x.importance).length, any: a.filter((x) => x.prefs.length || x.importance).length };
+  };
+  let announcedAll = false;
+  const refreshCount = () => {
+    const c = countAnswered();
+    answered.textContent = `${c.full} of ${QUESTIONS.length} questions fully answered`;
+    if (c.full === QUESTIONS.length) {
+      steps.mark('answer');
+      if (!announcedAll) {
+        announcedAll = true;
+        toast({ level: 'green', title: 'All questions answered', message: 'Your summary is ready to show.', action: { label: 'Next: show my summary', onClick: () => form.requestSubmit() } });
+      }
+    }
+  };
+  form.addEventListener('change', refreshCount);
+  refreshCount();
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const c = countAnswered();
+    renderSummary(summary, readForm(form), engine);
+    if (!c.any) {
+      toast({ level: 'red', title: 'No answers yet', message: 'Answer at least one question to see a summary.' });
+      return;
+    }
+    steps.mark('summary');
+    toast({ level: c.full === QUESTIONS.length ? 'green' : 'amber', title: 'Your summary is ready',
+      message: c.full === QUESTIONS.length ? 'It lists your priorities and questions to ask providers.' : `You answered ${c.full} of ${QUESTIONS.length} questions fully. The summary uses what you gave; you can add more answers and show it again.`,
+      action: { label: 'Next: print or save it', onClick: () => document.getElementById('print-summary').focus() } });
+    document.getElementById('print-summary').addEventListener('click', () => {
+      steps.mark('keep');
+      toast({ level: 'info', title: 'Opening the print window', message: 'Choose "Save as PDF" as the printer to keep a copy for appointments.' });
+      setTimeout(() => window.print(), 300);
+    });
+    document.getElementById('copy-summary').addEventListener('click', async () => {
+      steps.mark('keep');
+      try {
+        await navigator.clipboard.writeText(summary.innerText.replace(/Print or save as PDF[\s\S]*$/, '').trim());
+        toast({ level: 'green', title: 'Summary copied', message: 'Paste it into an email, a note or a message to family.', action: { label: 'Next: see where to get help', href: '#help' } });
+      } catch (e) {
+        toast({ level: 'amber', title: 'Copying is not available in this browser', message: 'Use "Print or save as PDF" instead.' });
+      }
+    });
+  });
+  form.addEventListener('reset', () => {
+    summary.replaceChildren(); announcedAll = false;
+    setTimeout(refreshCount, 0);
+    toast({ level: 'info', title: 'Your answers have been cleared', message: 'Nothing was saved, so there is nothing else to delete.' });
+  });
+  document.querySelectorAll('#help a[href^="tel:"], #help a[href^="http"]').forEach((a) => a.addEventListener('click', () => steps.mark('help')));
 
   // Relative importance from the study
   const ri = engine.relativeImportance('mnl');

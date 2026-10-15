@@ -56,6 +56,7 @@
         <li><a href="index.html">Home</a></li>
         <li><a href="families.html">For families and carers</a></li>
         <li><a href="plan.html" aria-current="page">Plan a programme</a></li>
+        <li><a href="value.html">Benefits and costs</a></li>
         <li><a href="fees.html">Fees and access</a></li>
         <li><a href="research.html">The research</a></li>
       </ul>
@@ -72,6 +73,7 @@
       </div>
     </div>
     <div class="wrap">
+      <div class="progress" id="progress"></div>
       <div class="tool">
         <form class="panel controls" id="builder" aria-labelledby="builder-title">
           <h2 id="builder-title">Programme features</h2>
@@ -88,7 +90,9 @@
           <p class="hint">Some combinations were not shown in the study, for example group programmes held in your own home. Those options are greyed out.</p>
           <div class="btnrow">
             <button type="button" class="btn secondary" id="add-compare">Add to comparison</button>
+            <button type="button" class="btn secondary" id="copy">Copy link to this programme</button>
             <button type="button" class="btn secondary" id="print">Print or save as PDF</button>
+            <button type="button" class="btn secondary" id="reset">Start again</button>
           </div>
         </form>
 
@@ -99,6 +103,7 @@
               <div class="readout-number" id="uptake-number">&nbsp;</div>
               <div class="readout-label" id="uptake-label"></div>
               <p class="range" id="uptake-range"></p>
+              <p id="rating"></p>
             </div>
             <div>
               <div id="uptake-array"></div>
@@ -106,7 +111,12 @@
             </div>
           </div>
 
+          <h2 class="no-print" style="margin-top:1.4rem">Quick changes</h2>
+          <p class="prose no-print">Each button changes one feature. A message at the bottom right tells you what changed.</p>
+          <div class="quick" id="quick"></div>
+
           <dl class="stats" id="stats"></dl>
+          <p class="btnrow no-print"><a class="btn" id="to-value" href="value.html">Check the benefits and costs of this programme</a></p>
 
           <h2>Who it reaches</h2>
           <div class="prose" id="reach"></div>
@@ -126,6 +136,10 @@
           <details>
             <summary>Keeping the programme once chosen</summary>
             <p>After choosing between two programmes, people in the study said whether they would keep their choice if they could choose neither. A separate model of that second answer gives the share who would keep this programme once they had picked it.</p>
+          </details>
+          <details>
+            <summary>Value to families and break-even running cost</summary>
+            <p>The value to families is the money value of having the programme available, compared with no programme, averaged over everyone offered it and net of the fee. It comes from the choice model (the "logsum" measure of consumer surplus). The break-even running cost is the provider cost per participant per session at which the value to participants, including the fees they pay, equals the cost of running the programme. See <a href="value.html">Benefits and costs</a> for the full calculation.</p>
           </details>
           <details>
             <summary>Lived experience</summary>
@@ -156,6 +170,7 @@
           <li><a href="index.html">Home</a></li>
           <li><a href="families.html">For families and carers</a></li>
           <li><a href="plan.html">Plan a programme</a></li>
+          <li><a href="value.html">Benefits and costs</a></li>
           <li><a href="fees.html">Fees and access</a></li>
           <li><a href="research.html">The research</a></li>
           <li><a href="accessibility.html">Accessibility</a></li>

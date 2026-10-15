@@ -1,4 +1,5 @@
-import { boot, el, money, pct } from './common.js';
+import { boot, el, money, pct, per100, describe } from './common.js';
+import { Engine } from './engine.js';
 import { intervalChart, barChart } from './charts.js';
 
 boot((engine) => {
@@ -36,6 +37,23 @@ boot((engine) => {
     el('h3', {}, 'The follow-up question'),
     el('p', {}, `The second answer in each task depended on how attractive the chosen programme was, and allowing it separate preferences did not improve fit. People gave up a chosen programme only when it was unattractive; combining the two answers into one choice gave willingness-to-pay values within A$5 of the sequential model.`),
   );
+
+  // Benefits of the example programmes
+  const ben = document.getElementById('benefits');
+  const rowsB = engine.scenarios.filter((s) => engine.isFeasible(s.design)).map((s) => {
+    const v = engine.valueDraws('mnl', s.design);
+    const b = Engine.bca(v, s.design, engine.sessionsPerYear(s.design), { offered: 1, providerCost: null });
+    const vm = engine.valueDraws('mxlr', s.design, 1).point;
+    return el('tr', {}, el('th', { scope: 'row' }, s.name), el('td', {}, describe(engine, s.design)),
+      el('td', { class: 'num' }, `${per100(v.point.P)} in 100`),
+      el('td', { class: 'num' }, `${money(v.point.CS, 2)} (${money(b.ci.surplusPerOfferedSession[0], 0)} to ${money(b.ci.surplusPerOfferedSession[1], 0)})`),
+      el('td', { class: 'num' }, money(vm.CS, 2)),
+      el('td', { class: 'num' }, money(b.breakEven)));
+  });
+  ben.append(el('div', { class: 'table-scroll' }, el('table', {},
+    el('caption', {}, 'Value of the example programmes per person offered per session, net of the fee'),
+    el('thead', {}, el('tr', {}, ...['Programme', 'Features', 'Take-up (logit)', 'Value, logit (95% interval)', 'Value, mixed logit', 'Break-even running cost (logit)'].map((h, i) => el('th', { scope: 'col', class: i > 1 ? 'num' : '' }, h)))),
+    el('tbody', {}, ...rowsB))));
 
   // Validation against MATLAB
   const v = engine.validate();

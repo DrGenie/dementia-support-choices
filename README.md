@@ -4,7 +4,10 @@ A public website that turns the results of an Australian discrete choice experim
 
 - **Families and carers** (`families.html`): plain-language information on programme types, a short exercise to work out what matters most, a printable summary with questions to ask providers, and national helplines.
 - **Service providers and programme designers** (`plan.html`): build a programme from seven features and see predicted take-up with 95% intervals, the share who would keep it once chosen, reach by lived experience and by preference group, the single changes that raise take-up most, and a side-by-side comparison.
+- **Funders, policy makers and providers** (`value.html`): a benefit-cost analysis. The value to participants is the expected consumer surplus from the choice model (logsum, Small and Rosen 1981) plus fees paid; costs use the provider cost per participant per session the user enters. Gives a traffic-light verdict (green: benefit-cost ratio interval above 1; amber: interval includes 1; red: below 1), the break-even running cost, net benefit and its 95% interval, the chance that benefits exceed costs, sensitivity to running cost, fee and the share of stated value counted, and a comparison with a second programme.
 - **Policy makers and funders** (`fees.html`): take-up and price elasticity across fees from free to A$50 per session under three models, switching between two programmes when a fee rises, travel distance by delivery mode, who a programme will not reach, and the cost of each extra participant using your own provider costs.
+
+Every button and setting gives a short message at the bottom right of the screen, coloured as a traffic light with a word label (Good, Check, Caution, Done), saying what changed and what to do next. Each tool page shows a progress list of steps. Programmes in the planner and the benefit-cost page are stored in the page address, so a link can be copied and shared.
 
 `research.html` describes the study, shows willingness to pay and relative importance, lists limitations, and checks on every load that the website reproduces the MATLAB results.
 
@@ -19,13 +22,13 @@ Genie MG, Mansfield E, Paolucci F. Public preferences for dementia support progr
 ## Repository layout
 
 ```
-index.html, families.html, plan.html, fees.html, research.html
+index.html, families.html, plan.html, value.html, fees.html, research.html
 accessibility.html, privacy.html, 404.html
 assets/css/site.css          layout, type and print styles
 assets/js/engine.js          all model calculations (shared by the browser and the tests)
 assets/js/charts.js          SVG charts with hover tooltips
 assets/js/common.js          text size, loading, formatting, icon array
-assets/js/home.js, families.js, plan.js, fees.js, research.js   page code
+assets/js/home.js, families.js, plan.js, value.js, fees.js, research.js   page code
 assets/fonts/                Atkinson Hyperlegible and Source Serif 4 (SIL OFL)
 assets/img/                  logo and favicon
 data/model.json              model estimates and parameter draws exported from MATLAB
@@ -76,7 +79,7 @@ python3 -m http.server 8000
 
 ## Tests
 
-`npm test` checks that the browser engine reproduces, for the eight example programmes, the MATLAB values for logit take-up and retention (to 0.0001) and mixed logit take-up (to 0.01, the simulation error), the published willingness-to-pay values, the size of the permitted design space (1,536 combinations), the reference programme's take-up at A$0 and A$50, the diversion ratio and the share who would not take a free programme.
+`npm test` checks that the browser engine reproduces, for the eight example programmes, the MATLAB values for logit take-up and retention (to 0.0001) and mixed logit take-up (to 0.01, the simulation error), the published willingness-to-pay values, the size of the permitted design space (1,536 combinations), the reference programme's take-up at A$0 and A$50, the diversion ratio, the share who would not take a free programme, and the consumer surplus values from the MATLAB welfare analysis.
 
 ## Accessibility
 

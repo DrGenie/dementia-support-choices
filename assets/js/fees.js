@@ -1,4 +1,5 @@
-import { boot, el, per100, pct, money, describe, feasibleTemplates, debounce, priceLabel } from './common.js';
+import { boot, el, per100, pct, money, describe, feasibleTemplates, debounce, priceLabel, toast, changeLevel, signed, progress } from './common.js';
+import { Engine } from './engine.js';
 import { lineChart, shareBars } from './charts.js';
 
 const COL = { mnl: '#2a6bc4', mxl: '#d1621f', pw: '#18a078', none: '#6b7280' };
@@ -160,12 +161,15 @@ boot((engine) => {
     if (!N) { box.replaceChildren(el('p', { class: 'warning' }, 'Enter the number of people offered the programme.')); return; }
     const calc = (s) => {
       const d = s.design;
-      const u = engine.uptakeMxl(d, 0).point;
+      const v = engine.valueDraws('mxlr', d, 1).point;
+      const u = v.P;
       const people = N * u;
       const sessions = engine.sessionsPerYear(d);
       const provider = cps === '' ? null : people * sessions * (+cps);
       const fees = people * sessions * d.price;
-      return { u, people, sessions, provider, fees, net: provider == null ? null : provider - fees };
+      const benefit = N * sessions * v.CS + fees;
+      return { u, people, sessions, provider, fees, benefit, net: provider == null ? null : provider - fees,
+        bcr: provider ? benefit / provider : null };
     };
     const a = calc(cur), b = calc(alt);
     const fmt = (x) => (x == null ? 'Enter a cost per session' : money(x));
@@ -177,6 +181,8 @@ boot((engine) => {
       ['Provider cost per year', fmt(a.provider), fmt(b.provider)],
       ['Fees paid by participants per year', money(a.fees), money(b.fees)],
       ['Net cost to the funder per year', fmt(a.net), fmt(b.net)],
+      ['Value to participants per year', money(a.benefit), money(b.benefit)],
+      ['Benefit-cost ratio', a.bcr == null ? 'Enter a cost per session' : a.bcr.toFixed(2), b.bcr == null ? 'Enter a cost per session' : b.bcr.toFixed(2)],
     ];
     const extra = b.people - a.people;
     const parts = [el('div', { class: 'table-scroll' }, el('table', {},
@@ -189,14 +195,76 @@ boot((engine) => {
     else parts.push(el('p', {}, `The alternative would not reach more people than the current programme (difference ${Math.round(extra).toLocaleString('en-AU')}).`));
     parts.push(el('p', { class: 'small muted' }, 'These figures combine predicted take-up from the study with the costs you enter. They assume everyone offered the programme makes one decision about it, that participants attend every session, and that the same provider cost per session applies to both programmes.'));
     box.replaceChildren(...parts);
+    return { a, b, extra, same: cur.id === alt.id };
   }
 
+  const steps = progress(document.getElementById('progress'), [
+    { id: 'fee', label: 'Set a fee', href: '#fee' },
+    { id: 'switching', label: 'See where people go', href: '#switching' },
+    { id: 'travel', label: 'Check travel and mode', href: '#travel' },
+    { id: 'cost', label: 'Cost of reaching more people', href: '#cost' },
+    { id: 'value', label: 'Full benefit-cost analysis', href: 'value.html' },
+  ]);
+  const nextAction = () => {
+    const n = steps.nextLabel();
+    if (!n) return null;
+    return n.href.startsWith('#') ? { label: `Next: ${n.label.toLowerCase()}`, onClick: () => document.querySelector(n.href).scrollIntoView({ behavior: 'smooth', block: 'start' }) }
+      : { label: `Next: ${n.label.toLowerCase()}`, href: n.href };
+  };
+  const takeup = () => engine.uptakeMxl(programme(), 0).point;
+  let lastFeeTakeup = takeup();
+
+  // Quick fee buttons
+  const quick = el('div', { class: 'quickbtns', 'aria-label': 'Quick fee choices' });
+  for (const p of [0, 5, 20, 50]) {
+    quick.append(el('button', { type: 'button', 'data-p': p, onclick: () => { fee.value = p; fee.dispatchEvent(new Event('input')); fee.dispatchEvent(new Event('change')); } }, p === 0 ? 'Free' : `$${p}`));
+  }
+  fee.insertAdjacentElement('afterend', quick);
+  const markQuick = () => { for (const b of quick.children) b.setAttribute('aria-pressed', String(+b.dataset.p === +fee.value)); };
+
   const onFee = debounce(updateFee, 120);
-  fee.addEventListener('input', () => { document.getElementById('fee-out').textContent = priceLabel(+fee.value); onFee(); });
-  progSel.addEventListener('change', updateFee);
-  altSel.addEventListener('change', updateSwitch);
+  fee.addEventListener('input', () => { document.getElementById('fee-out').textContent = priceLabel(+fee.value); markQuick(); onFee(); });
+  fee.addEventListener('change', () => {
+    updateFee(); markQuick(); steps.mark('fee');
+    const u = takeup(), d = u - lastFeeTakeup; lastFeeTakeup = u;
+    const free = engine.uptakeMxl({ ...programme(), price: 0 }, 0).point;
+    toast({ level: +fee.value === 0 ? 'green' : changeLevel(d), title: `Fee set to ${+fee.value === 0 ? 'free' : money(+fee.value) + ' per session'}`,
+      message: `Take-up ${per100(u)} in 100${Math.abs(d) >= 0.005 ? ` (${signed(100 * d, 1)} from the previous fee)` : ''}; ${+fee.value === 0 ? 'the highest possible for this programme.' : `${(100 * (free - u)).toFixed(1)} in 100 fewer than if it were free.`}`,
+      action: nextAction() });
+  });
+  progSel.addEventListener('change', () => {
+    updateFee(); lastFeeTakeup = takeup(); steps.mark('fee');
+    toast({ level: 'info', title: `Programme changed to the ${byId(progSel.value).name.toLowerCase()}`,
+      message: `All sections now use this programme. Take-up at the current fee: ${per100(lastFeeTakeup)} in 100.`, action: nextAction() });
+  });
+  altSel.addEventListener('change', () => {
+    updateSwitch(); steps.mark('switching');
+    const s = engine.substitution(programme(), { ...byId(altSel.value).design, price: +altFee.value });
+    toast({ level: altSel.value === progSel.value ? 'amber' : 'info', title: `Second programme: ${byId(altSel.value).name.toLowerCase()}`,
+      message: altSel.value === progSel.value ? 'Choose a programme that differs from the first.' : `With both on offer, ${per100(s.mxl.none)} in 100 people would choose neither.`, action: nextAction() });
+  });
   altFee.addEventListener('input', debounce(updateSwitch, 100));
-  for (const id of ['cost-current', 'cost-alt', 'cost-n', 'cost-session']) document.getElementById(id).addEventListener('input', debounce(updateCost, 150));
+  altFee.addEventListener('change', () => {
+    steps.mark('switching');
+    const s = engine.substitution(programme(), { ...byId(altSel.value).design, price: +altFee.value });
+    toast({ level: 'info', title: `Second programme fee set to ${+altFee.value === 0 ? 'free' : money(+altFee.value)}`, message: `${per100(s.mxl.B)} in 100 would choose it; ${per100(s.mxl.none)} in 100 would choose neither.` });
+  });
+  document.getElementById('travel').addEventListener('pointerenter', () => steps.mark('travel'), { once: true });
+  for (const id of ['cost-current', 'cost-alt', 'cost-n', 'cost-session']) {
+    document.getElementById(id).addEventListener('input', debounce(updateCost, 150));
+    document.getElementById(id).addEventListener('change', () => {
+      const r = updateCost(); steps.mark('cost');
+      if (!r) { toast({ level: 'red', title: 'Number of people needs to be 1 or more' }); return; }
+      if (r.same) { toast({ level: 'amber', title: 'Both programmes are the same', message: 'Choose two different programmes to compare.' }); return; }
+      if (r.a.bcr == null) {
+        toast({ level: r.extra > 0 ? 'green' : 'amber', title: 'Comparison updated', message: `The alternative reaches about ${Math.round(Math.abs(r.extra)).toLocaleString('en-AU')} ${r.extra >= 0 ? 'more' : 'fewer'} people. Enter a cost per session to compare costs.`, action: { label: 'Next: enter a cost per session', onClick: () => document.getElementById('cost-session').focus() } });
+        return;
+      }
+      const level = r.b.bcr >= 1 && r.b.bcr >= r.a.bcr ? 'green' : r.b.bcr < 1 ? 'red' : 'amber';
+      toast({ level, title: 'Costs updated', message: `Benefit-cost ratio ${r.a.bcr.toFixed(2)} for the current programme and ${r.b.bcr.toFixed(2)} for the alternative.`, action: { label: 'Next: full benefit-cost analysis', href: 'value.html' } });
+    });
+  }
   document.getElementById('cost-form').addEventListener('submit', (e) => e.preventDefault());
   updateFee();
+  markQuick();
 });

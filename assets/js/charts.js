@@ -88,6 +88,10 @@ export function lineChart(container, opts) {
       'stroke-width': 2.5, 'stroke-dasharray': s.dash || '', 'stroke-linejoin': 'round', 'stroke-linecap': 'round',
     }));
   }
+  if (opts.refY != null && opts.refY >= opts.y[0] && opts.refY <= opts.y[1]) {
+    svg.append(svgEl('line', { x1: m.l, x2: W - m.r, y1: Y(opts.refY), y2: Y(opts.refY), stroke: '#1f2329', 'stroke-width': 1.4, 'stroke-dasharray': '6 4' }));
+    if (opts.refLabel) { const t = svgEl('text', { x: W - m.r - 4, y: Y(opts.refY) - 6, 'text-anchor': 'end', fill: '#1f2329', 'font-size': 13 }); t.textContent = opts.refLabel; svg.append(t); }
+  }
   if (opts.marker != null) {
     svg.append(svgEl('line', { class: 'marker-line', x1: X(opts.marker), x2: X(opts.marker), y1: m.t, y2: H - m.b }));
   }
